@@ -1,0 +1,41 @@
+services:
+  db:
+    image: mysql:latest
+    environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: smarthaven
+        MYSQL_USER: smarthaven
+        MYSQL_PASSWORD: smarthaven
+    volumes:
+        - ./db:/docker-entrypoint-initdb.d/:ro
+    ports:
+        - 3306:3306
+    networks:
+        - smarthaven-docker
+  app:
+    build:
+        dockerfile: Dockerfile
+    volumes:
+        - ./:/var/www/html
+    ports:
+        - 8080:80
+    depends_on:
+        - db
+    networks:
+        - smarthaven-docker
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+        PMA_HOST: db
+        PMA_PORT: 3306
+        PMA_USER: smarthaven
+        PMA_PASSWORD: smarthaven
+    ports:
+        - 8081:80
+    depends_on:
+        - db
+    networks:
+        - smarthaven-docker
+networks:
+ smarthaven-docker:
+     driver: bridge
