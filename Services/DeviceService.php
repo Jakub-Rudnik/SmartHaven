@@ -1,14 +1,21 @@
 <?php
 declare(strict_types=1);
 
+namespace Services;
+
 require_once './Entity/Device.php';
 require_once './Entity/DeviceType.php';
 require_once './Services/DeviceTypeService.php';
 require_once './Lib/Database.php';
 
+use Entity\Device;
+use Entity\DeviceType;
+use Lib\DatabaseConnection;
+use Services\DeviceTypeService;
+
 class DeviceService {
     private DatabaseConnection $db;
-    private $deviceTypeService;
+    private DeviceTypeService $deviceTypeService;
 
     public function __construct(DatabaseConnection $db) {
         $this->db = $db;
@@ -16,71 +23,78 @@ class DeviceService {
     }
 
     public function getDevices(): array {
-        $query = 'SELECT id, name, type, state FROM Device';
+        $query = 'SELECT DeviceID, DeviceName, DeviceTypeID, Location FROM Device';
 
         return $this->queryToArray($query);
     }
 
-    public function getDeviceById(int $id): Device {
-        $query = 'SELECT id, name, state, type FROM Device WHERE id = ' . $id;
+    public function getDeviceById(int $id): ?Device {
+        $query = 'SELECT DeviceID, DeviceName, DeviceTypeID, Location FROM Device WHERE DeviceID = ' . $id;
 
         try {
-            $device = $this->db->query($query)[0];
-        } catch (Exception $e) {
+            $deviceData = $this->db->query($query)[0];
+            $deviceType = $this->deviceTypeService->getDeviceTypeById($deviceData['DeviceTypeID']);
+            return new Device(
+                $deviceData['DeviceID'],
+                $deviceData['DeviceName'],
+                $deviceType,
+                $deviceData['Location']
+            );
+        } catch (\Exception $e) {
             echo $e->getMessage();
+            return null;
         }
-
-        $deviceType = $this->deviceTypeService->getDeviceTypeById($device['type']);
-
-        return new Device($device['id'], $device['name'], $deviceType , (bool) $device['state']);
     }
 
-    public function getDeviceByName(string $name): Device | null {
-        $query = 'SELECT id, name, state, type FROM Device WHERE name = "' . $name . '"';
+    public function getDeviceByName(string $name): ?Device {
+        $query = 'SELECT DeviceID, DeviceName, DeviceTypeID, Location FROM Device WHERE DeviceName = "' . $name . '"';
 
         try {
-            $device = $this->db->query($query)[0];
-            $deviceType = $this->deviceTypeService->getDeviceTypeById($device['type']);
-            return new Device($device['id'], $device['name'], $deviceType, (bool) $device['state']);
-        } catch (Exception $e) {
+            $deviceData = $this->db->query($query)[0];
+            $deviceType = $this->deviceTypeService->getDeviceTypeById($deviceData['DeviceTypeID']);
+            return new Device(
+                $deviceData['DeviceID'],
+                $deviceData['DeviceName'],
+                $deviceType,
+                $deviceData['Location']
+            );
+        } catch (\Exception $e) {
             echo $e->getMessage();
+            return null;
         }
-
-        return null;
     }
 
-    public function getDeviceByType(DeviceType $type): array {
-        $query = 'SELECT id, name, type, state FROM Device WHERE type = "' . $type->getId() . '"';
+    public function getDevicesByType(DeviceType $type): array {
+        $query = 'SELECT DeviceID, DeviceName, DeviceTypeID, Location FROM Device WHERE DeviceTypeID = ' . $type->getId();
 
         return $this->queryToArray($query);
     }
 
-    public function getDeviceByState(bool $state): array {
-        $query = 'SELECT id, name, type, state FROM Device WHERE state = "' . (int) $state . '"';
+    public function getDevicesByLocation(string $location): array {
+        $query = 'SELECT DeviceID, DeviceName, DeviceTypeID, Location FROM Device WHERE Location = "' . $location . '"';
 
         return $this->queryToArray($query);
     }
 
-    /**
-     * @param string $query
-     * @return array
-     */
-    public function queryToArray(string $query): array
-    {
+    private function queryToArray(string $query): array {
         try {
-            $devices = $this->db->query($query);
-        } catch (Exception $e) {
+            $devicesData = $this->db->query($query);
+        } catch (\Exception $e) {
             echo $e->getMessage();
+            return [];
         }
 
         $deviceList = [];
-        foreach ($devices as $device) {
-            $deviceType = $this->deviceTypeService->getDeviceTypeById($device['type']);
-
-            $deviceList[] = new Device($device['id'], $device['name'], $deviceType, (bool) $device['state']);
+        foreach ($devicesData as $deviceData) {
+            $deviceType = $this->deviceTypeService->getDeviceTypeById($deviceData['DeviceTypeID']);
+            $deviceList[] = new Device(
+                $deviceData['DeviceID'],
+                $deviceData['DeviceName'],
+                $deviceType,
+                $deviceData['Location']
+            );
         }
 
         return $deviceList;
     }
-
 }
