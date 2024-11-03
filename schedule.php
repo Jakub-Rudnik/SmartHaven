@@ -19,7 +19,8 @@ try {
     echo "<h2>Włączone urządzenia</h2>";
     if (count($onDevices) > 0) {
         foreach ($onDevices as $device) {
-            echo "Urządzenie: " . htmlspecialchars($device['DeviceName']) . "<br>";
+            echo "Urządzenie: " . htmlspecialchars($device['DeviceName']);
+            echo "<button onclick=\"toggleDevice(" . $device['DeviceID'] . ", 0)\">Wyłącz</button><br>";
         }
     } else {
         echo "Brak włączonych urządzeń.";
@@ -37,7 +38,8 @@ try {
     echo "<h2>Wyłączone urządzenia</h2>";
     if (count($offDevices) > 0) {
         foreach ($offDevices as $device) {
-            echo "Urządzenie: " . htmlspecialchars($device['DeviceName']) . "<br>";
+            echo "Urządzenie: " . htmlspecialchars($device['DeviceName']);
+            echo "<button onclick=\"toggleDevice(" . $device['DeviceID'] . ", 1)\">Włącz</button><br>";
         }
     } else {
         echo "Brak wyłączonych urządzeń.";
@@ -47,3 +49,13 @@ try {
     echo "Błąd: " . $e->getMessage();
 }
 ?>
+
+<script>
+function toggleDevice(deviceId, status) {
+    // Funkcja do włączania/wyłączania urządzeń
+    // status = 1 to włącz, status = 0 to wyłącz
+    console.log('Przełączanie urządzenia o ID: ' + deviceId + ' na status: ' + status);
+    // Tutaj można dodać logikę do zmiany stanu urządzenia w UI
+    // na przykład zmiana koloru przycisku, animacja, itp.
+}
+</script>
