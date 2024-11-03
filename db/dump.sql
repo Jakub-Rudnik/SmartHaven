@@ -11,11 +11,13 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
+-- Usunięcie istniejących tabel
+DROP TABLE IF EXISTS `SimulationData`;
+DROP TABLE IF EXISTS `DeviceParameter`;
+DROP TABLE IF EXISTS `DeviceTypeParameter`;
+DROP TABLE IF EXISTS `Device`;
+DROP TABLE IF EXISTS `DeviceType`;
+DROP TABLE IF EXISTS `Parameter`;
 
 --
 -- Database: `smarthaven`
@@ -24,26 +26,15 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Struktura tabeli dla tabeli `Device`
+-- Struktura tabeli dla tabeli `Parameter`
 --
 
-CREATE TABLE `Device` (
-  `DeviceID` int NOT NULL,
-  `DeviceTypeID` int DEFAULT NULL,
-  `DeviceName` varchar(100) NOT NULL,
-  `Location` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
--- Struktura tabeli dla tabeli `DeviceParameter`
---
-
-CREATE TABLE `DeviceParameter` (
-  `DeviceID` int NOT NULL,
-  `ParameterID` int NOT NULL,
-  `Value` varchar(100) DEFAULT NULL
+CREATE TABLE `Parameter` (
+  `ParameterID` int NOT NULL AUTO_INCREMENT,
+  `Name` varchar(100) NOT NULL,
+  `Unit` varchar(50) DEFAULT NULL,
+  `Description` text,
+  PRIMARY KEY (`ParameterID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -53,9 +44,26 @@ CREATE TABLE `DeviceParameter` (
 --
 
 CREATE TABLE `DeviceType` (
-  `DeviceTypeID` int NOT NULL,
+  `DeviceTypeID` int NOT NULL AUTO_INCREMENT,
   `TypeName` varchar(100) NOT NULL,
-  `Description` text
+  `Description` text,
+  PRIMARY KEY (`DeviceTypeID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabeli dla tabeli `Device`
+--
+
+CREATE TABLE `Device` (
+  `DeviceID` int NOT NULL AUTO_INCREMENT,
+  `DeviceTypeID` int DEFAULT NULL,
+  `DeviceName` varchar(100) NOT NULL,
+  `Location` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`DeviceID`),
+  KEY `DeviceTypeID` (`DeviceTypeID`),
+  CONSTRAINT `Device_ibfk_1` FOREIGN KEY (`DeviceTypeID`) REFERENCES `DeviceType` (`DeviceTypeID`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -67,20 +75,27 @@ CREATE TABLE `DeviceType` (
 CREATE TABLE `DeviceTypeParameter` (
   `DeviceTypeID` int NOT NULL,
   `ParameterID` int NOT NULL,
-  `DefaultValue` varchar(100) DEFAULT NULL
+  `DefaultValue` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`DeviceTypeID`,`ParameterID`),
+  KEY `ParameterID` (`ParameterID`),
+  CONSTRAINT `DeviceTypeParameter_ibfk_1` FOREIGN KEY (`DeviceTypeID`) REFERENCES `DeviceType` (`DeviceTypeID`) ON DELETE CASCADE,
+  CONSTRAINT `DeviceTypeParameter_ibfk_2` FOREIGN KEY (`ParameterID`) REFERENCES `Parameter` (`ParameterID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
 --
--- Struktura tabeli dla tabeli `Parameter`
+-- Struktura tabeli dla tabeli `DeviceParameter`
 --
 
-CREATE TABLE `Parameter` (
+CREATE TABLE `DeviceParameter` (
+  `DeviceID` int NOT NULL,
   `ParameterID` int NOT NULL,
-  `Name` varchar(100) NOT NULL,
-  `Unit` varchar(50) DEFAULT NULL,
-  `Description` text
+  `Value` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`DeviceID`,`ParameterID`),
+  KEY `ParameterID` (`ParameterID`),
+  CONSTRAINT `DeviceParameter_ibfk_1` FOREIGN KEY (`DeviceID`) REFERENCES `Device` (`DeviceID`) ON DELETE CASCADE,
+  CONSTRAINT `DeviceParameter_ibfk_2` FOREIGN KEY (`ParameterID`) REFERENCES `Parameter` (`ParameterID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -90,118 +105,67 @@ CREATE TABLE `Parameter` (
 --
 
 CREATE TABLE `SimulationData` (
-  `SimulationID` int NOT NULL,
+  `SimulationID` int NOT NULL AUTO_INCREMENT,
   `DeviceID` int DEFAULT NULL,
   `ParameterID` int DEFAULT NULL,
   `SimulatedValue` varchar(100) DEFAULT NULL,
-  `Timestamp` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+  `Timestamp` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`SimulationID`),
+  KEY `DeviceID` (`DeviceID`),
+  KEY `ParameterID` (`ParameterID`),
+  CONSTRAINT `SimulationData_ibfk_1` FOREIGN KEY (`DeviceID`) REFERENCES `Device` (`DeviceID`) ON DELETE CASCADE,
+  CONSTRAINT `SimulationData_ibfk_2` FOREIGN KEY (`ParameterID`) REFERENCES `Parameter` (`ParameterID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Indeksy dla zrzutów tabel
+-- Dodanie przykładowych danych
 --
 
---
--- Indeksy dla tabeli `Device`
---
-ALTER TABLE `Device`
-  ADD PRIMARY KEY (`DeviceID`),
-  ADD KEY `DeviceTypeID` (`DeviceTypeID`);
+-- Wstawienie typów urządzeń
+INSERT INTO `DeviceType` (`DeviceTypeID`, `TypeName`, `Description`) VALUES
+(1, 'Klimatyzacja', 'Urządzenie klimatyzacyjne'),
+(2, 'Lampa', 'Urządzenie oświetleniowe');
 
---
--- Indeksy dla tabeli `DeviceParameter`
---
-ALTER TABLE `DeviceParameter`
-  ADD PRIMARY KEY (`DeviceID`,`ParameterID`),
-  ADD KEY `ParameterID` (`ParameterID`);
+-- Wstawienie parametrów
+INSERT INTO `Parameter` (`ParameterID`, `Name`, `Unit`, `Description`) VALUES
+(1, 'Status', NULL, '0 - wyłączone, 1 - włączone'),
+(2, 'Temperatura', '°C', 'Temperatura zadana lub aktualna'),
+(3, 'Jasność', '%', 'Poziom jasności od 0% do 100%'),
+(4, 'Tryb', NULL, 'Tryb pracy urządzenia klimatyzacyjnego'),
+(5, 'Kolor', NULL, 'Kolor światła');
 
---
--- Indeksy dla tabeli `DeviceType`
---
-ALTER TABLE `DeviceType`
-  ADD PRIMARY KEY (`DeviceTypeID`);
+-- Powiązanie parametrów z typami urządzeń
+INSERT INTO `DeviceTypeParameter` (`DeviceTypeID`, `ParameterID`, `DefaultValue`) VALUES
+(1, 1, '0'),    -- Klimatyzacja, Status
+(1, 2, '22'),   -- Klimatyzacja, Temperatura
+(1, 4, 'Cool'), -- Klimatyzacja, Tryb
+(2, 1, '0'),    -- Lampa, Status
+(2, 3, '50'),   -- Lampa, Jasność
+(2, 5, 'Biały');-- Lampa, Kolor
 
---
--- Indeksy dla tabeli `DeviceTypeParameter`
---
-ALTER TABLE `DeviceTypeParameter`
-  ADD PRIMARY KEY (`DeviceTypeID`,`ParameterID`),
-  ADD KEY `ParameterID` (`ParameterID`);
+-- Wstawienie urządzeń
+INSERT INTO `Device` (`DeviceID`, `DeviceTypeID`, `DeviceName`, `Location`) VALUES
+(1, 1, 'klimatyzacja1', 'Salon'),
+(2, 2, 'lampa1', 'Sypialnia');
 
---
--- Indeksy dla tabeli `Parameter`
---
-ALTER TABLE `Parameter`
-  ADD PRIMARY KEY (`ParameterID`);
+-- Wstawienie parametrów urządzeń
+INSERT INTO `DeviceParameter` (`DeviceID`, `ParameterID`, `Value`) VALUES
+(1, 1, '0'),      -- klimatyzacja1, Status
+(1, 2, '22'),     -- klimatyzacja1, Temperatura
+(1, 4, 'Heat'),   -- klimatyzacja1, Tryb
+(2, 1, '1'),      -- lampa1, Status
+(2, 3, '75'),     -- lampa1, Jasność
+(2, 5, 'Czerwony'); -- lampa1, Kolor
 
---
--- Indeksy dla tabeli `SimulationData`
---
-ALTER TABLE `SimulationData`
-  ADD PRIMARY KEY (`SimulationID`),
-  ADD KEY `DeviceID` (`DeviceID`),
-  ADD KEY `ParameterID` (`ParameterID`);
+-- Wstawienie danych symulacyjnych
+INSERT INTO `SimulationData` (`SimulationID`, `DeviceID`, `ParameterID`, `SimulatedValue`, `Timestamp`) VALUES
+(1, 1, 1, '0', NOW()),
+(2, 1, 2, '22', NOW()),
+(3, 1, 4, 'Heat', NOW()),
+(4, 2, 1, '1', NOW()),
+(5, 2, 3, '75', NOW()),
+(6, 2, 5, 'Czerwony', NOW());
 
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `Device`
---
-ALTER TABLE `Device`
-  MODIFY `DeviceID` int NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `DeviceType`
---
-ALTER TABLE `DeviceType`
-  MODIFY `DeviceTypeID` int NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `Parameter`
---
-ALTER TABLE `Parameter`
-  MODIFY `ParameterID` int NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `SimulationData`
---
-ALTER TABLE `SimulationData`
-  MODIFY `SimulationID` int NOT NULL AUTO_INCREMENT;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `Device`
---
-ALTER TABLE `Device`
-  ADD CONSTRAINT `Device_ibfk_1` FOREIGN KEY (`DeviceTypeID`) REFERENCES `DeviceType` (`DeviceTypeID`) ON DELETE SET NULL;
-
---
--- Constraints for table `DeviceParameter`
---
-ALTER TABLE `DeviceParameter`
-  ADD CONSTRAINT `DeviceParameter_ibfk_1` FOREIGN KEY (`DeviceID`) REFERENCES `Device` (`DeviceID`) ON DELETE CASCADE,
-  ADD CONSTRAINT `DeviceParameter_ibfk_2` FOREIGN KEY (`ParameterID`) REFERENCES `Parameter` (`ParameterID`) ON DELETE CASCADE;
-
---
--- Constraints for table `DeviceTypeParameter`
---
-ALTER TABLE `DeviceTypeParameter`
-  ADD CONSTRAINT `DeviceTypeParameter_ibfk_1` FOREIGN KEY (`DeviceTypeID`) REFERENCES `DeviceType` (`DeviceTypeID`) ON DELETE CASCADE,
-  ADD CONSTRAINT `DeviceTypeParameter_ibfk_2` FOREIGN KEY (`ParameterID`) REFERENCES `Parameter` (`ParameterID`) ON DELETE CASCADE;
-
---
--- Constraints for table `SimulationData`
---
-ALTER TABLE `SimulationData`
-  ADD CONSTRAINT `SimulationData_ibfk_1` FOREIGN KEY (`DeviceID`) REFERENCES `Device` (`DeviceID`) ON DELETE CASCADE,
-  ADD CONSTRAINT `SimulationData_ibfk_2` FOREIGN KEY (`ParameterID`) REFERENCES `Parameter` (`ParameterID`) ON DELETE CASCADE;
 COMMIT;
 
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+SET FOREIGN_KEY_CHECKS = 1;
