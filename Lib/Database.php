@@ -1,7 +1,13 @@
 <?php
+declare(strict_types=1);
+
+namespace Lib;
+
+use PDO;
+use Exception;
 
 class DatabaseConnection {
-    private PDO | null $pdo;
+    private ?PDO $pdo;
 
     private string $dsn = 'mysql:host=db;port=3306;dbname=smarthaven';
     private string $username = 'smarthaven';
@@ -11,19 +17,19 @@ class DatabaseConnection {
         $this->pdo = new PDO($this->dsn, $this->username, $this->password);
     }
 
-    private function closeConnection(): void{
+    private function closeConnection(): void {
         $this->pdo = null;
     }
 
     /**
      * @throws Exception
      */
-    public function query(string $query): array | object {
+    public function query(string $query, array $params = []): array {
         $this->openConnection();
 
         $statement = $this->pdo->prepare($query);
-        $statement->execute();
-        $result = $statement->fetchAll();
+        $statement->execute($params);
+        $result = $statement->fetchAll(PDO::FETCH_ASSOC);
 
         $this->closeConnection();
 
@@ -31,10 +37,16 @@ class DatabaseConnection {
             throw new Exception('Error fetching data');
         }
 
-        if (count($result) === 0) {
-            throw new Exception('No data found');
-        }
-
         return $result;
     }
+
+    public function execute(string $query, array $params = []): void {
+        $this->openConnection();
+
+        $statement = $this->pdo->prepare($query);
+        $statement->execute($params);
+
+        $this->closeConnection();
+    }
 }
+?>
