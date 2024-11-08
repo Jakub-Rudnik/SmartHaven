@@ -1,6 +1,6 @@
 <?php
 
-function createHeader(string $title)
+function createHeader(string $title): void
 {
     $html = "
         <div class='d-flex flex-column align-items-start gap-3'>
