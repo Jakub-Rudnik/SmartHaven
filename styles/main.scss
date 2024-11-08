@@ -1,16 +1,56 @@
 $primary-purple: #a71aae;
 $primary-blue: #233cb8;
 $primary-gradient: linear-gradient(
-  0deg,
   $primary-blue 0%,
   $primary-purple 100%
 );
 $primary: $primary-blue;
 
-$bs-nav-pills-link-active-bg: $primary-gradient;
-
 .bg-primary {
-  background: linear-gradient(0deg, $primary-blue 0%, $primary-purple 100%);
+  background: linear-gradient(0deg, $primary-blue 0%, $primary-purple 100%) !important;
+}
+
+.nav-item .active {
+    background: $primary-gradient !important;
+}
+
+.btn-primary {
+    background: $primary-gradient !important;
+    border: none !important;
+}
+
+@font-face {
+  font-family: "Poppins";
+  font-weight: 400;
+  src: url("../Public/Fonts/Poppins/Poppins-Regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Poppins";
+  font-weight: 700;
+  src: url("/Public/Fonts/Poppins/Poppins-Bold.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Poppins";
+  font-weight: 300;
+  src: url("/Public/Fonts/Poppins/Poppins-Light.ttf") format("truetype");
+}
+
+body {
+    font-family: "Poppins", 'sans-serif' !important;
+}
+
+.navbar {
+  width: min-content;
 }
 
 @import "../node_modules/bootstrap/scss/bootstrap.scss";
+
+@include media-breakpoint-up(xl) {
+  .navbar {
+    width: 280px !important;
+  }
+}
+
+
