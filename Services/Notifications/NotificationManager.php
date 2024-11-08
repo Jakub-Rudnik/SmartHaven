@@ -18,6 +18,15 @@ class NotificationManager {
                 "priority" => "high"
             ]
         ];
+        $this->config['MAINTENANCE'] = [
+            "title" => "Maintenance work",
+            "priority" => "low"
+        ];
+        $this->config['ERROR'] = [
+            "title" => "Device error",
+            "priority" => "high"
+        ];
+        
     }
 
     public function sendNotification($eventData) {
