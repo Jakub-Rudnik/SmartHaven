@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/styles/main.css">
 </head>
 <body class="d-flex flex-md-row p-1 p-md-3 gap-3 w-100 vh-100">
-   
+
     <?php
         require_once './UI/components/header.php';
         require_once './UI/components/navbar.php';
@@ -16,7 +16,23 @@
 
     <main class="card bg-dark-subtle flex-grow-1 p-4" style="min-height: 100%">
         <?php
-            createHeader('Cześć Dawid! 😎');
+
+
+
+            $request = explode('/', $_SERVER['REQUEST_URI']);
+
+            switch ($request[1]) {
+                case '':
+                    createHeader('Cześć Dawid! 😎');
+                    break;
+                case 'devices':
+                    createHeader('Urządzenia');
+                    require_once './UI/components/devices.php';
+                    break;
+                default:
+                    break;
+            }
+
         ?>
     </main>
 
