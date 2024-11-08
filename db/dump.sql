@@ -15,6 +15,7 @@ SET time_zone = "+00:00";
 DROP TABLE IF EXISTS `SimulationData`;
 DROP TABLE IF EXISTS `DeviceParameter`;
 DROP TABLE IF EXISTS `DeviceTypeParameter`;
+DROP TABLE IF EXISTS `Schedule`;
 DROP TABLE IF EXISTS `Device`;
 DROP TABLE IF EXISTS `DeviceType`;
 DROP TABLE IF EXISTS `Parameter`;
@@ -117,6 +118,28 @@ CREATE TABLE `SimulationData` (
   CONSTRAINT `SimulationData_ibfk_2` FOREIGN KEY (`ParameterID`) REFERENCES `Parameter` (`ParameterID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- --------------------------------------------------------
+
+--
+-- Struktura tabeli dla tabeli `Schedule`
+--
+
+CREATE TABLE `Schedule` (
+  `ScheduleID` int NOT NULL AUTO_INCREMENT,
+  `DeviceID` int NOT NULL,
+  `StartTime` datetime NOT NULL,
+  `EndTime` datetime DEFAULT NULL,
+  `ParameterID` int DEFAULT NULL,
+  `ParameterValue` varchar(100) DEFAULT NULL,
+  `RepeatPattern` varchar(50) DEFAULT NULL, -- Informacja o powtarzaniu, np. codziennie, tygodniowo
+  `ScheduleState` INT(1) DEFAULT 0,
+  PRIMARY KEY (`ScheduleID`),
+  KEY `DeviceID` (`DeviceID`),
+  KEY `ParameterID` (`ParameterID`),
+  CONSTRAINT `Schedule_ibfk_1` FOREIGN KEY (`DeviceID`) REFERENCES `Device` (`DeviceID`) ON DELETE CASCADE,
+  CONSTRAINT `Schedule_ibfk_2` FOREIGN KEY (`ParameterID`) REFERENCES `Parameter` (`ParameterID`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 --
 -- Dodanie przykładowych danych
 --
@@ -175,7 +198,7 @@ INSERT INTO `DeviceParameter` (`DeviceID`, `ParameterID`, `Value`) VALUES
 (2, 5, 'Czerwony'), -- lampa1, Kolor
 (3, 6, 'zamknięta'), -- brama_wjazdowa1, Stan
 (4, 6, 'otwarta'),  -- brama_garazowa1, Stan
-(5, 1, '1'),      -- lampa2, Status
+(5, 1, '1'),      -- kamera1, Status
 (5, 3, '50'),     -- lampa2, Jasność
 (5, 5, 'Zielony'),-- lampa2, Kolor
 (6, 1, '1'),      -- kamera1, Status
@@ -184,6 +207,10 @@ INSERT INTO `DeviceParameter` (`DeviceID`, `ParameterID`, `Value`) VALUES
 (8, 1, '1'),      -- lampa3, Status
 (8, 3, '100'),    -- lampa3, Jasność
 (8, 5, 'Biały');  -- lampa3, Kolor
+
+-- Wstawienie harmonogramów
+INSERT INTO `Schedule` (`DeviceID`, `StartTime`, `EndTime`, `ParameterID`, `ParameterValue`, `RepeatPattern`) VALUES
+(1, '2024-10-31 08:00:00', NULL, 1, '1', 'codziennie'); -- Klimatyzacja włączana codziennie o 8:00
 
 -- Wstawienie danych symulacyjnych
 INSERT INTO `SimulationData` (`DeviceID`, `ParameterID`, `SimulatedValue`, `Timestamp`) VALUES
