@@ -6,7 +6,7 @@
     <title>Smarthaven</title>
     <link rel="stylesheet" href="/styles/main.css">
 </head>
-<body class="d-flex flex-md-row p-3 gap-3 w-100 vh-100">
+<body class="d-flex flex-md-row p-1 p-md-3 gap-3 w-100 vh-100">
    
     <?php
         require_once './UI/components/header.php';
