@@ -1,0 +1,16 @@
+$primary-purple: #a71aae;
+$primary-blue: #233cb8;
+$primary-gradient: linear-gradient(
+  0deg,
+  $primary-blue 0%,
+  $primary-purple 100%
+);
+$primary: $primary-blue;
+
+$bs-nav-pills-link-active-bg: $primary-gradient;
+
+.bg-primary {
+  background: linear-gradient(0deg, $primary-blue 0%, $primary-purple 100%);
+}
+
+@import "../node_modules//bootstrap/scss/bootstrap.scss";
