@@ -1,61 +1,68 @@
 <?php
 require_once './Lib/Database.php';
 require_once './Services/DeviceService.php';
-require_once './Services/DeviceTypeService.php';
 
 // Inicjalizacja połączenia z bazą danych
 $db = new DatabaseConnection();
 
 try {
-    // Pobranie włączonych urządzeń
-    $onDevicesQuery = "
-        SELECT d.DeviceID, d.DeviceName 
-        FROM Device d
-        JOIN DeviceParameter dp ON d.DeviceID = dp.DeviceID
-        WHERE dp.ParameterID = 1 AND dp.Value = '1';"; // 1 oznacza włączone urządzenie
-
-    $onDevices = $db->query($onDevicesQuery);
-
-    echo "<h2>Włączone urządzenia</h2>";
-    if (count($onDevices) > 0) {
-        foreach ($onDevices as $device) {
-            echo "Urządzenie: " . htmlspecialchars($device['DeviceName']);
-            echo "<button onclick=\"toggleDevice(" . $device['DeviceID'] . ", 0)\">Wyłącz</button><br>";
-        }
-    } else {
-        echo "Brak włączonych urządzeń.";
-    }
-
-    // Pobranie wyłączonych urządzeń
-    $offDevicesQuery = "
-        SELECT d.DeviceID, d.DeviceName 
-        FROM Device d
-        JOIN DeviceParameter dp ON d.DeviceID = dp.DeviceID
-        WHERE dp.ParameterID = 1 AND dp.Value = '0';"; // 0 oznacza wyłączone urządzenie
-
-    $offDevices = $db->query($offDevicesQuery);
-
-    echo "<h2>Wyłączone urządzenia</h2>";
-    if (count($offDevices) > 0) {
-        foreach ($offDevices as $device) {
-            echo "Urządzenie: " . htmlspecialchars($device['DeviceName']);
-            echo "<button onclick=\"toggleDevice(" . $device['DeviceID'] . ", 1)\">Włącz</button><br>";
-        }
-    } else {
-        echo "Brak wyłączonych urządzeń.";
-    }
-
+    // Pobranie urządzeń z bazy danych
+    $devicesQuery = "
+        SELECT DeviceID, DeviceName, Location 
+        FROM Device;";
+    $devices = $db->query($devicesQuery);
 } catch (Exception $e) {
     echo "Błąd: " . $e->getMessage();
 }
 ?>
 
-<script>
-function toggleDevice(deviceId, status) {
-    // Funkcja do włączania/wyłączania urządzeń
-    // status = 1 to włącz, status = 0 to wyłącz
-    console.log('Przełączanie urządzenia o ID: ' + deviceId + ' na status: ' + status);
-    // Tutaj można dodać logikę do zmiany stanu urządzenia w UI
-    // na przykład zmiana koloru przycisku, animacja, itp.
-}
-</script>
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Harmonogram Urządzeń</title>
+    <style>
+        /* Dodaj podstawowy styl dla formularza */
+        .device-container {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px 0;
+            width: 300px;
+        }
+        .device-container h3 {
+            margin: 0;
+            font-size: 1.2em;
+        }
+        .form-group {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Ustaw harmonogram urządzeń</h1>
+
+<?php if (count($devices) > 0): ?>
+    <?php foreach ($devices as $device): ?>
+        <div class="device-container">
+            <h3><?php echo htmlspecialchars($device['DeviceName']); ?> (<?php echo htmlspecialchars($device['Location']); ?>)</h3>
+            <form action="schedule.php" method="post">
+                <div class="form-group">
+                    <label for="start-time-<?php echo $device['DeviceID']; ?>">Czas włączenia:</label>
+                    <input type="time" id="start-time-<?php echo $device['DeviceID']; ?>" name="start_time_<?php echo $device['DeviceID']; ?>">
+                </div>
+                <div class="form-group">
+                    <label for="end-time-<?php echo $device['DeviceID']; ?>">Czas wyłączenia:</label>
+                    <input type="time" id="end-time-<?php echo $device['DeviceID']; ?>" name="end_time_<?php echo $device['DeviceID']; ?>">
+                </div>
+                <!-- Przycisk zapisz (na razie bez funkcji zapisywania) -->
+                <button type="submit" name="schedule_device" value="<?php echo $device['DeviceID']; ?>">Zapisz</button>
+            </form>
+        </div>
+    <?php endforeach; ?>
+<?php else: ?>
+    <p>Brak urządzeń do wyświetlenia.</p>
+<?php endif; ?>
+
+</body>
+</html>
