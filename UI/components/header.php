@@ -5,7 +5,7 @@ function createHeader(string $title)
     $html = "
         <div class='d-flex flex-column align-items-start gap-3'>
             <h2 class='font-bold'><strong>$title</strong></h2>
-            <div class='d-flex gap-4'>
+            <div class='d-flex flex-column flex-md-row gap-2 gap-md-4'>
                 <div class='d-flex gap-2 align-items-center'>
                     <svg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'>
                         <g clip-path='url(#clip0_5496_1875)'>
