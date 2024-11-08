@@ -45,11 +45,38 @@ body {
   width: min-content;
 }
 
+
+.devices {
+ grid-template-columns: 1fr;
+}
+
+
+
 @import "../node_modules/bootstrap/scss/bootstrap.scss";
+
+.device-card {
+  background: linear-gradient(90deg, $dark-bg-subtle-dark 0%, $gray-800 100%);
+  border: 1px solid $gray-700;
+
+  &:hover {
+    cursor: pointer;
+    background: $gray-800
+  }
+}
+
+@include media-breakpoint-up(md) {
+  .devices {
+      grid-template-columns: 1fr 1fr;
+  }
+}
 
 @include media-breakpoint-up(xl) {
   .navbar {
     width: 280px !important;
+  }
+
+  .devices {
+      grid-template-columns: 1fr 1fr 1fr;
   }
 }
 

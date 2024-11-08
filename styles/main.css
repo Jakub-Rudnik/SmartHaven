@@ -35,6 +35,10 @@ body {
   width: min-content;
 }
 
+.devices {
+  grid-template-columns: 1fr;
+}
+
 /*!
  * Bootstrap  v5.3.3 (https://getbootstrap.com/)
  * Copyright 2011-2024 The Bootstrap Authors
@@ -11880,9 +11884,26 @@ textarea.form-control-lg {
     display: none !important;
   }
 }
+.device-card {
+  background: linear-gradient(90deg, #1a1d20 0%, #343a40 100%);
+  border: 1px solid #495057;
+}
+.device-card:hover {
+  cursor: pointer;
+  background: #343a40;
+}
+
+@media (min-width: 768px) {
+  .devices {
+    grid-template-columns: 1fr 1fr;
+  }
+}
 @media (min-width: 1200px) {
   .navbar {
     width: 280px !important;
+  }
+  .devices {
+    grid-template-columns: 1fr 1fr 1fr;
   }
 }
 
