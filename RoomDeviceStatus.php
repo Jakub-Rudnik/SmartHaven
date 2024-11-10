@@ -54,7 +54,7 @@ try {
 
 <script>
 function toggleDevice(deviceId, status) {
-    // Wysyłanie żądania AJAX do toggle_device.php
+    // Sending an AJAX request to toggleDevice.php
     fetch('toggleDevice.php', {
         method: 'POST',
         headers: {
@@ -65,7 +65,7 @@ function toggleDevice(deviceId, status) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Odświeżenie strony po zmianie statusu
+            // Refreshing the page after a status change
             location.reload();
         } else {
             console.error('Błąd przy zmianie statusu:', data.message);
