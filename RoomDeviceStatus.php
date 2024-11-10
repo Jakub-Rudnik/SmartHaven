@@ -13,12 +13,13 @@ $db = new DatabaseConnection();
 try {
     // Download of equipment with location and status
     $devicesQuery = "
-        SELECT d.DeviceID, d.DeviceName, d.Location, dp.Value AS Status
+        SELECT d.DeviceID, d.DeviceName, 
+               COALESCE(d.Location, 'Brak przydzielonego pokoju') AS Location, 
+               dp.Value AS Status
         FROM Device d
         JOIN DeviceParameter dp ON d.DeviceID = dp.DeviceID
         WHERE dp.ParameterID = 1
         ORDER BY d.Location;";
-
     $devices = $db->query($devicesQuery);
 
     // Equipment group by location
@@ -27,7 +28,7 @@ try {
         // If the location is new, display a header with the name of the room
         if ($currentLocation !== $device['Location']) {
             if ($currentLocation !== null) {
-                echo "Brak przydzielonego pokoju</ul>";
+                echo "</ul>";
             }
             $currentLocation = $device['Location'];
             echo "<h2>" . htmlspecialchars($currentLocation) . "</h2><ul>";
@@ -50,8 +51,26 @@ try {
 }
 ?>
 
+
 <script>
 function toggleDevice(deviceId, status) {
-    console.log('Przełączanie urządzenia o ID: ' + deviceId + ' na status: ' + status);
+    // Wysyłanie żądania AJAX do toggle_device.php
+    fetch('toggleDevice.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ deviceId: deviceId, status: status })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Odświeżenie strony po zmianie statusu
+            location.reload();
+        } else {
+            console.error('Błąd przy zmianie statusu:', data.message);
+        }
+    })
+    .catch(error => console.error('Błąd:', error));
 }
 </script>
