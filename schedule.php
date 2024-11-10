@@ -2,11 +2,13 @@
 require_once './Lib/Database.php';
 require_once './Services/DeviceService.php';
 
-// Inicjalizacja połączenia z bazą danych
+use Lib\DatabaseConnection; 
+
+// Initiation database connection
 $db = new DatabaseConnection();
 
 try {
-    // Pobranie urządzeń z bazy danych
+    // Downloading devices from the database
     $devicesQuery = "
         SELECT DeviceID, DeviceName, Location 
         FROM Device;";
@@ -22,7 +24,7 @@ try {
     <meta charset="UTF-8">
     <title>Harmonogram Urządzeń</title>
     <style>
-        /* Dodaj podstawowy styl dla formularza */
+        /* Basic form UI */
         .device-container {
             border: 1px solid #ccc;
             padding: 10px;
@@ -55,7 +57,7 @@ try {
                     <label for="end-time-<?php echo $device['DeviceID']; ?>">Czas wyłączenia:</label>
                     <input type="time" id="end-time-<?php echo $device['DeviceID']; ?>" name="end_time_<?php echo $device['DeviceID']; ?>">
                 </div>
-                <!-- Przycisk zapisz (na razie bez funkcji zapisywania) -->
+                <!-- Save button (no save function for the time being) -->
                 <button type="submit" name="schedule_device" value="<?php echo $device['DeviceID']; ?>">Zapisz</button>
             </form>
         </div>

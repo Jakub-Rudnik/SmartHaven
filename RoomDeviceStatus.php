@@ -3,11 +3,15 @@ require_once './Lib/Database.php';
 require_once './Services/DeviceService.php';
 require_once './Services/DeviceTypeService.php';
 
-// Inicjalizacja połączenia z bazą danych
+use Services\DeviceService;
+use Services\DeviceTypeService;
+use Lib\DatabaseConnection;
+
+// Initiation database connection
 $db = new DatabaseConnection();
 
 try {
-    // Pobranie urządzeń wraz z lokalizacją i stanem
+    // Download of equipment with location and status
     $devicesQuery = "
         SELECT d.DeviceID, d.DeviceName, d.Location, dp.Value AS Status
         FROM Device d
@@ -17,19 +21,19 @@ try {
 
     $devices = $db->query($devicesQuery);
 
-    // Grupa urządzeń według lokalizacji
+    // Equipment group by location
     $currentLocation = null;
     foreach ($devices as $device) {
-        // Jeśli lokalizacja jest nowa, wyświetl nagłówek z nazwą pokoju
+        // If the location is new, display a header with the name of the room
         if ($currentLocation !== $device['Location']) {
             if ($currentLocation !== null) {
-                echo "</ul>";
+                echo "Brak przydzielonego pokoju</ul>";
             }
             $currentLocation = $device['Location'];
             echo "<h2>" . htmlspecialchars($currentLocation) . "</h2><ul>";
         }
 
-        // Wyświetl urządzenie wraz z jego stanem i przyciskiem
+        // Display the device with its status and button
         $statusText = $device['Status'] == '1' ? 'Włączone' : 'Wyłączone';
         $toggleText = $device['Status'] == '1' ? 'Wyłącz' : 'Włącz';
         $newStatus = $device['Status'] == '1' ? 0 : 1;
@@ -49,6 +53,5 @@ try {
 <script>
 function toggleDevice(deviceId, status) {
     console.log('Przełączanie urządzenia o ID: ' + deviceId + ' na status: ' + status);
-    // UI logika do zmiany stanu (można tutaj dodać np. zmianę koloru lub tekstu)
 }
 </script>
