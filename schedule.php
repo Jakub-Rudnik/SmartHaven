@@ -10,7 +10,8 @@ $db = new DatabaseConnection();
 try {
     // Downloading devices from the database
     $devicesQuery = "
-        SELECT DeviceID, DeviceName, Location 
+        SELECT DeviceID, DeviceName, 
+               COALESCE(Location, 'Brak lokalizacji') AS Location 
         FROM Device;";
     $devices = $db->query($devicesQuery);
 } catch (Exception $e) {
@@ -39,32 +40,53 @@ try {
             margin: 5px 0;
         }
     </style>
+    <!-- Link do CSS Select2 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <!-- Link do jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Link do JS Select2 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 </head>
 <body>
 
 <h1>Ustaw harmonogram urządzeń</h1>
 
 <?php if (count($devices) > 0): ?>
-    <?php foreach ($devices as $device): ?>
-        <div class="device-container">
-            <h3><?php echo htmlspecialchars($device['DeviceName']); ?> (<?php echo htmlspecialchars($device['Location']); ?>)</h3>
-            <form action="schedule.php" method="post">
-                <div class="form-group">
-                    <label for="start-time-<?php echo $device['DeviceID']; ?>">Czas włączenia:</label>
-                    <input type="time" id="start-time-<?php echo $device['DeviceID']; ?>" name="start_time_<?php echo $device['DeviceID']; ?>">
-                </div>
-                <div class="form-group">
-                    <label for="end-time-<?php echo $device['DeviceID']; ?>">Czas wyłączenia:</label>
-                    <input type="time" id="end-time-<?php echo $device['DeviceID']; ?>" name="end_time_<?php echo $device['DeviceID']; ?>">
-                </div>
-                <!-- Save button (no save function for the time being) -->
-                <button type="submit" name="schedule_device" value="<?php echo $device['DeviceID']; ?>">Zapisz</button>
-            </form>
+    <form action="schedule.php" method="post">
+        <div class="form-group">
+            <label for="device-select">Wybierz urządzenie:</label>
+            <select id="device-select" name="device_id" class="device-select" style="width: 100%;">
+                <option value="">Wybierz urządzenie</option>
+                <?php foreach ($devices as $device): ?>
+                    <option value="<?php echo $device['DeviceID']; ?>">
+                        <?php echo htmlspecialchars($device['DeviceName']); ?> (<?php echo htmlspecialchars($device['Location']); ?>)
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </div>
-    <?php endforeach; ?>
+        <div class="form-group">
+            <label for="start-time">Czas włączenia:</label>
+            <input type="time" id="start-time" name="start_time">
+        </div>
+        <div class="form-group">
+            <label for="end-time">Czas wyłączenia:</label>
+            <input type="time" id="end-time" name="end_time">
+        </div>
+        <button type="submit" name="schedule_device">Zapisz</button>
+    </form>
 <?php else: ?>
     <p>Brak urządzeń do wyświetlenia.</p>
 <?php endif; ?>
+
+<script>
+    // Inicjalizacja Select2
+    $(document).ready(function() {
+        $('.device-select').select2({
+            placeholder: "Wybierz urządzenie",
+            allowClear: true
+        });
+    });
+</script>
 
 </body>
 </html>
