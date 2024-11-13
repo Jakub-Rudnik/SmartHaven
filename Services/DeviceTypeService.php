@@ -75,6 +75,7 @@ public function getDeviceTypeByName(string $name): DeviceType {
         }
     }
 
+ 
     /**
      * @param string $query
      * @return array
