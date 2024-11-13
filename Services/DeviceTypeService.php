@@ -94,4 +94,20 @@ class DeviceTypeService
 
         return $devicesTypesList;
     }
+    public function getDevicesWithoutLocation(): array
+    {
+        $devicesWithoutLocation = [];
+    
+        try {
+            $query = "SELECT DeviceName FROM Device WHERE Location IS NULL";
+            $result = $this->db->query($query);
+    
+            foreach ($result as $row) {
+                $devicesWithoutLocation[] = $row['DeviceName'];
+            }
+        } catch (Exception $e) {
+            echo "Error: " . $e->getMessage();
+        }
+        return $devicesWithoutLocation;
+    }
 }

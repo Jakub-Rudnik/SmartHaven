@@ -5,39 +5,39 @@ require_once './Services/DeviceTypeService.php';
 
 $db = new DatabaseConnection();
 
-$devicesService = new DeviceService($db);
-$devicesTypeService = new DeviceTypeService($db);
+$Device = new Device($db);
+$DevicesType = new DeviceType($db);
 
-$devices = $devicesService->getDevices();
+$devices = $Device->getDevices();
 
 echo '<h2>Devices</h2>';
-foreach ($devices as $device) {
-    echo $device->getName() . ' ' . $device->getType()->getName() . ' ' . $device->getState() . '<br>';
+foreach ($devices as $Device) {
+    echo $Device->getName() . ' ' . $Device->getType()->getName() . ' ' . $Device->getState() . '<br>';
 }
 
 echo '<h2>By Id</h2>';
-$device = $devicesService->getDeviceById(1);
-echo $device->getName() . ' ' . $device->getType()->getName() . ' ' . $device->getState() . '<br>';
+$Device = $Device->getDeviceById(1);
+echo $Device->getName() . ' ' . $Device->getType()->getName() . ' ' . $Device->getState() . '<br>';
 
 echo '<h2>By Name</h2>';
-$device = $devicesService->getDeviceByName('Tv');
-echo $device->getName() . ' ' . $device->getType()->getName() . ' ' . $device->getState() . '<br>';
+$Device = $Device->getDeviceByName('Tv');
+echo $Device->getName() . ' ' . $Device->getType()->getName() . ' ' . $Device->getState() . '<br>';
 
 echo '<h2>By Type</h2>';
-$deviceType = $devicesTypeService->getDeviceTypeByName('Light');
-$devices = $devicesService->getDeviceByType($deviceType);
-foreach ($devices as $device) {
-    echo $device->getName() . ' ' . $device->getType()->getName() . ' ' . $device->getState() . '<br>';
+$DeviceType = $DevicesType->getDeviceTypeByName('Light');
+$devices = $Device->getDeviceByType($DeviceType);
+foreach ($devices as $Device) {
+    echo $Device->getName() . ' ' . $Device->getType()->getName() . ' ' . $Device->getState() . '<br>';
 }
 
 echo '<h2>By State</h2>';
-$devices = $devicesService->getDeviceByState(true);
-foreach ($devices as $device) {
-    echo $device->getName() . ' ' . $device->getType()->getName() . ' ' . $device->getState() . '<br>';
+$devices = $Device->getDeviceByState(true);
+foreach ($devices as $Device) {
+    echo $Device->getName() . ' ' . $Device->getType()->getName() . ' ' . $Device->getState() . '<br>';
 }
 
 echo '<h2>Device Types</h2>';
-$devicesTypes = $devicesTypeService->getDeviceTypes();
-foreach ($devicesTypes as $deviceType) {
-    echo $deviceType->getId() . ' ' .  $deviceType->getName() . '<br>';
+$DevicesTypes = $DevicesType->getDeviceTypes();
+foreach ($evicesTypes as $DeviceType) {
+    echo $DeviceType->getId() . ' ' .  $dDviceType->getName() . '<br>';
 }
