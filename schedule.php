@@ -7,6 +7,9 @@ use Lib\DatabaseConnection;
 // Initiation database connection
 $db = new DatabaseConnection();
 
+// Initialize $devices as an empty array to avoid "undefined variable" error
+$devices = [];
+
 try {
     // Downloading devices from the database
     $devicesQuery = "
@@ -17,6 +20,7 @@ try {
 } catch (Exception $e) {
     echo "Błąd: " . $e->getMessage();
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -38,6 +42,9 @@ try {
         }
         .form-group {
             margin: 5px 0;
+        }
+        button:disabled {
+            background-color: #ccc;
         }
     </style>
     <!-- Link to CSS Select2 -->
@@ -86,30 +93,31 @@ try {
             <label><input type="checkbox" name="cycle_days[]" value="sunday" class="weekdays"> Niedziela</label><br>
         </div>
         
-        <button type="submit" name="schedule_device">Zapisz</button>
+        <button type="submit" name="schedule_device" id="submit-button" disabled>Zapisz</button>
     </form>
 <?php else: ?>
     <p>Brak urządzeń do wyświetlenia.</p>
 <?php endif; ?>
 
 <script>
-    // InitiationSelect2
     $(document).ready(function() {
+        // Initialize Select2
         $('.device-select').select2({
             placeholder: "Wybierz urządzenie",
             allowClear: true
         });
 
-        // Selection handling "Codziennie"
+        // Check if 'Codziennie' is checked
         $('#everyday').change(function() {
             if ($(this).prop('checked')) {
-                $('.weekdays').prop('checked', true);  // Check all day
+                $('.weekdays').prop('checked', true);  // Check all days
             } else {
-                $('.weekdays').prop('checked', false);  // Uncheck all day
+                $('.weekdays').prop('checked', false);  // Uncheck all days
             }
+            toggleSubmitButton();
         });
 
-        // Handle individual day checkbox changes
+        // Check if individual days are selected
         $('.weekdays').change(function() {
             if ($('.weekdays:checked').length === 7) {
                 // If all days are selected, check ‘Codziennie’
@@ -118,10 +126,29 @@ try {
                 // If not all days are selected, uncheck ‘Codziennie’
                 $('#everyday').prop('checked', false);
             }
+            toggleSubmitButton();
+        });
+
+        // Function to check if all required fields are filled
+        function toggleSubmitButton() {
+            const deviceSelected = $('#device-select').val() !== '';
+            const startTimeSelected = $('#start-time').val() !== '';
+            const endTimeSelected = $('#end-time').val() !== '';
+            const cycleDaysSelected = ($('#everyday').prop('checked') || $('.weekdays:checked').length > 0);
+
+            if (deviceSelected && startTimeSelected && endTimeSelected && cycleDaysSelected) {
+                $('#submit-button').prop('disabled', false);  // Enable submit button
+            } else {
+                $('#submit-button').prop('disabled', true);  // Disable submit button
+            }
+        }
+
+        // Run check when any input changes
+        $('#device-select, #start-time, #end-time, .weekdays').change(function() {
+            toggleSubmitButton();
         });
     });
 </script>
-
 
 </body>
 </html>
