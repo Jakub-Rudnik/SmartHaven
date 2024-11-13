@@ -60,6 +60,8 @@ foreach ($devicesTypes as $deviceType) {
 $devicesService->updateDeviceState(2, 0); 
 
 $notifications = $devicesService->getRecentNotifications();
+
+//$devicesWithoutLocation = $devicesService->getDevicesWithoutLocation();
 if (!empty($notifications)) {
     foreach ($notifications as $notification) {
         echo "<p>Device ID: {$notification['DeviceID']} changed state to " . ($notification['NewState'] ? 'On' : 'Off') . ".</p>";
@@ -105,7 +107,16 @@ if (!empty($notifications)) {
     </script>
 </head>
 <body>
-   <!-- <h1>Device Monitor</h1>
-    <p>Monitoring device changes...</p>-->
+<h1>Devices Without Location</h1>
+    <?php if (!empty($devicesWithoutLocation)): ?>
+        <ul>
+            <?php foreach ($devicesWithoutLocation as $deviceName): ?>
+                <li><?php echo htmlspecialchars($deviceName); ?></li>
+            <?php endforeach; ?>
+        </ul>
+    <?php else: ?>
+        <p>All devices have locations assigned.</p>
+    <?php endif; ?>
+   
 </body>
 </html>
