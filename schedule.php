@@ -40,11 +40,11 @@ try {
             margin: 5px 0;
         }
     </style>
-    <!-- Link do CSS Select2 -->
+    <!-- Link to CSS Select2 -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-    <!-- Link do jQuery -->
+    <!-- Link to jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Link do JS Select2 -->
+    <!-- Link to JS Select2 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 </head>
 <body>
@@ -72,6 +72,20 @@ try {
             <label for="end-time">Czas wyłączenia:</label>
             <input type="time" id="end-time" name="end_time">
         </div>
+        
+        <!-- Add of cycle_days-->
+        <div class="form-group">
+            <label>Wybierz dni cyklu:</label><br>
+            <label><input type="checkbox" id="everyday" name="cycle_days[]" value="everyday"> Codziennie</label><br>
+            <label><input type="checkbox" name="cycle_days[]" value="monday" class="weekdays"> Poniedziałek</label><br>
+            <label><input type="checkbox" name="cycle_days[]" value="tuesday" class="weekdays"> Wtorek</label><br>
+            <label><input type="checkbox" name="cycle_days[]" value="wednesday" class="weekdays"> Środa</label><br>
+            <label><input type="checkbox" name="cycle_days[]" value="thursday" class="weekdays"> Czwartek</label><br>
+            <label><input type="checkbox" name="cycle_days[]" value="friday" class="weekdays"> Piątek</label><br>
+            <label><input type="checkbox" name="cycle_days[]" value="saturday" class="weekdays"> Sobota</label><br>
+            <label><input type="checkbox" name="cycle_days[]" value="sunday" class="weekdays"> Niedziela</label><br>
+        </div>
+        
         <button type="submit" name="schedule_device">Zapisz</button>
     </form>
 <?php else: ?>
@@ -79,14 +93,35 @@ try {
 <?php endif; ?>
 
 <script>
-    // Inicjalizacja Select2
+    // InitiationSelect2
     $(document).ready(function() {
         $('.device-select').select2({
             placeholder: "Wybierz urządzenie",
             allowClear: true
         });
+
+        // Selection handling "Codziennie"
+        $('#everyday').change(function() {
+            if ($(this).prop('checked')) {
+                $('.weekdays').prop('checked', true);  // Check all day
+            } else {
+                $('.weekdays').prop('checked', false);  // Uncheck all day
+            }
+        });
+
+        // Handle individual day checkbox changes
+        $('.weekdays').change(function() {
+            if ($('.weekdays:checked').length === 7) {
+                // If all days are selected, check ‘Codziennie’
+                $('#everyday').prop('checked', true);
+            } else {
+                // If not all days are selected, uncheck ‘Codziennie’
+                $('#everyday').prop('checked', false);
+            }
+        });
     });
 </script>
+
 
 </body>
 </html>
