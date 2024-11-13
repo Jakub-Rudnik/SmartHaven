@@ -8,8 +8,14 @@ class DatabaseConnection {
     private string $password = 'smarthaven';
 
     private function openConnection() {
-        $this->pdo = new PDO($this->dsn, $this->username, $this->password);
+        try {
+            $this->pdo = new PDO($this->dsn, $this->username, $this->password);
+            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $e) {
+            throw new Exception('Connection failed: ' . $e->getMessage());
+        }
     }
+    
 
     private function closeConnection(): void{
         $this->pdo = null;
@@ -18,23 +24,21 @@ class DatabaseConnection {
     /**
      * @throws Exception
      */
-    public function query(string $query): array | object {
+    public function query(string $query, array $params = []): array {
         $this->openConnection();
-
+    
         $statement = $this->pdo->prepare($query);
-        $statement->execute();
-        $result = $statement->fetchAll();
-
+        $statement->execute($params);
+        $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+    
         $this->closeConnection();
-
-        if ($result === false) {
-            throw new Exception('Error fetching data');
-        }
-
-        if (count($result) === 0) {
+    
+        if ($result === false || count($result) === 0) {
             throw new Exception('No data found');
         }
-
+    
         return $result;
     }
+    
+    
 }

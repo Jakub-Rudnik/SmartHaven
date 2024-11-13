@@ -20,21 +20,37 @@ $device = $devicesService->getDeviceById(1);
 echo $device->getName() . ' ' . $device->getType()->getName() . ' ' . $device->getState() . '<br>';
 
 echo '<h2>By Name</h2>';
-$device = $devicesService->getDeviceByName('Tv');
-echo $device->getName() . ' ' . $device->getType()->getName() . ' ' . $device->getState() . '<br>';
+$device = $devicesService->getDeviceByName('klimatyzacja1');
+if ($device !== null) {
+    echo $device->getName() . ' ' . $device->getType()->getName() . ' ' . $device->getState() . '<br>';
+} else {
+    echo 'Device not found.<br>';
+}
+
 
 echo '<h2>By Type</h2>';
-$deviceType = $devicesTypeService->getDeviceTypeByName('Light');
-$devices = $devicesService->getDeviceByType($deviceType);
-foreach ($devices as $device) {
-    echo $device->getName() . ' ' . $device->getType()->getName() . ' ' . $device->getState() . '<br>';
+$deviceType = $devicesTypeService->getDeviceTypeByName('Lampa');
+if ($deviceType !== null) {
+    $devices = $devicesService->getDeviceByType($deviceType);
+    foreach ($devices as $device) {
+        echo $device->getName() . ' ' . $device->getType()->getName() . ' ' . $device->getState() . '<br>';
+    }
+} else {
+    echo 'Device Type not found.<br>';
 }
+
 
 echo '<h2>By State</h2>';
 $devices = $devicesService->getDeviceByState(true);
-foreach ($devices as $device) {
-    echo $device->getName() . ' ' . $device->getType()->getName() . ' ' . $device->getState() . '<br>';
+if (!empty($devices)) {
+    foreach ($devices as $device) {
+        echo $device->getName() . ' ' . $device->getType()->getName() . ' ' . ($device->getState() ? 'On' : 'Off') . '<br>';
+    }
+} else {
+    echo 'No devices found for the given state.<br>';
 }
+
+
 
 echo '<h2>Device Types</h2>';
 $devicesTypes = $devicesTypeService->getDeviceTypes();
