@@ -80,23 +80,22 @@ public function getDeviceByState(bool $state): array {
     $query = 'SELECT DeviceID AS id, DeviceName AS name, DeviceTypeID AS type, Location AS state FROM Device WHERE state = :state';
     return $this->queryToArray($query, ['state' => (int) $state]);
 }
+public function getDevicesWithoutLocation(): array
+   {
+       $devicesWithoutLocation = [];
 
-//    public function getDevicesWithoutLocation(): array
-//    {
-//        $devicesWithoutLocation = [];
+       try {
+           $query = "SELECT DeviceName FROM Device WHERE Location IS NULL";
+           $result = $this->db->query($query);
 
-//        try {
-//            $query = "SELECT DeviceName FROM Device WHERE Location IS NULL";
-//            $result = $this->db->query($query);
-
-//            foreach ($result as $row) {
-//                $devicesWithoutLocation[] = $row['DeviceName'];
-//            }
-//        } catch (Exception $e) {
-//            echo "Error: " . $e->getMessage();
-//        }
-//        return $devicesWithoutLocation;
-//    }
+           foreach ($result as $row) {
+               $devicesWithoutLocation[] = $row['DeviceName'];
+           }
+       } catch (Exception $e) {
+           echo "Error: " . $e->getMessage();
+       }
+       return $devicesWithoutLocation;
+   }
     /**
      * @param string $query
      * @return array

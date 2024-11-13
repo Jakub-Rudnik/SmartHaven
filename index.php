@@ -61,7 +61,7 @@ $devicesService->updateDeviceState(2, 0);
 
 $notifications = $devicesService->getRecentNotifications();
 
-//$devicesWithoutLocation = $devicesService->getDevicesWithoutLocation();
+$devicesWithoutLocation = $devicesService->getDevicesWithoutLocation();
 if (!empty($notifications)) {
     foreach ($notifications as $notification) {
         echo "<p>Device ID: {$notification['DeviceID']} changed state to " . ($notification['NewState'] ? 'On' : 'Off') . ".</p>";
