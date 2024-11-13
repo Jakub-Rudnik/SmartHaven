@@ -24,20 +24,17 @@ class DatabaseConnection {
     /**
      * @throws Exception
      */
+    
     public function query(string $query, array $params = []): array {
         $this->openConnection();
-    
+        
         $statement = $this->pdo->prepare($query);
         $statement->execute($params);
         $result = $statement->fetchAll(PDO::FETCH_ASSOC);
-    
+        
         $this->closeConnection();
     
-        if ($result === false || count($result) === 0) {
-            throw new Exception('No data found');
-        }
-    
-        return $result;
+        return $result ?: [];
     }
     
     

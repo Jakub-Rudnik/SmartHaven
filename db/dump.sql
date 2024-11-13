@@ -1,4 +1,4 @@
--- phpMyAdmin SQL Dump
+-- phpMyAdmin SQL Dump 
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
@@ -18,6 +18,7 @@ DROP TABLE IF EXISTS `DeviceTypeParameter`;
 DROP TABLE IF EXISTS `Device`;
 DROP TABLE IF EXISTS `DeviceType`;
 DROP TABLE IF EXISTS `Parameter`;
+DROP TABLE IF EXISTS `Notifications`; -- Nowa tabela Notifications
 
 --
 -- Database: `smarthaven`
@@ -117,6 +118,22 @@ CREATE TABLE `SimulationData` (
   CONSTRAINT `SimulationData_ibfk_1` FOREIGN KEY (`DeviceID`) REFERENCES `Device` (`DeviceID`) ON DELETE CASCADE,
   CONSTRAINT `SimulationData_ibfk_2` FOREIGN KEY (`ParameterID`) REFERENCES `Parameter` (`ParameterID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabeli dla tabeli `Notifications`
+--
+
+CREATE TABLE Notifications (
+    NotificationID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    DeviceID INT NOT NULL,
+    NewState TINYINT(1) NOT NULL,
+    Timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- --------------------------------------------------------
+
 
 -- Wstawienie typów urządzeń
 INSERT INTO `DeviceType` (`TypeName`, `Description`) VALUES

@@ -15,25 +15,6 @@ class DeviceService {
         $this->deviceTypeService = new DeviceTypeService($db);
     }
 
-    // public function getDevices(): array {
-    //     $query = 'SELECT id, name, type, state FROM Device';
-
-    //     return $this->queryToArray($query);
-    // }
-
-    // public function getDeviceById(int $id): Device {
-    //     $query = 'SELECT id, name, state, type FROM Device WHERE id = ' . $id;
-
-    //     try {
-    //         $device = $this->db->query($query)[0];
-    //     } catch (Exception $e) {
-    //         echo $e->getMessage();
-    //     }
-
-    //     $deviceType = $this->deviceTypeService->getDeviceTypeById($device['type']);
-
-    //     return new Device($device['id'], $device['name'], $deviceType , (bool) $device['state']);
-    // }
     public function getDevices(): array {
         $query = 'SELECT DeviceID AS id, DeviceName AS name, DeviceTypeID AS type, Location AS state FROM Device';
         return $this->queryToArray($query);
@@ -50,7 +31,30 @@ class DeviceService {
         $deviceType = $this->deviceTypeService->getDeviceTypeById($device['type']);
         return new Device($device['id'], $device['name'], $deviceType, (bool) $device['state']);
     }
-/////////////////////////    
+
+public function updateDeviceState(int $deviceId, int $newState): void {
+    $query = 'SELECT State FROM Device WHERE DeviceID = :deviceId';
+    $currentState = $this->db->query($query, ['deviceId' => $deviceId])[0]['State'];
+
+    if ($currentState !== $newState) {
+        $updateQuery = 'UPDATE Device SET State = :newState WHERE DeviceID = :deviceId';
+        $this->db->query($updateQuery, ['newState' => $newState, 'deviceId' => $deviceId]);
+
+        $this->logStateChange($deviceId, $newState);
+    }
+}
+
+
+private function logStateChange(int $deviceId, int $newState): void {
+    $logQuery = 'INSERT INTO Notifications (DeviceID, NewState, Timestamp) VALUES (:deviceId, :newState, NOW())';
+    $this->db->query($logQuery, ['deviceId' => $deviceId, 'newState' => $newState]);
+}
+
+
+public function getRecentNotifications(): array {
+    $query = 'SELECT * FROM Notifications WHERE Timestamp >= NOW() - INTERVAL 5 SECOND';
+    return $this->db->query($query);
+}
 
 public function getDeviceByName(string $name): Device | null {
     $query = 'SELECT DeviceID AS id, DeviceName AS name, DeviceTypeID AS type, Location AS state FROM Device WHERE DeviceName = "' . $name . '"';
@@ -65,7 +69,6 @@ public function getDeviceByName(string $name): Device | null {
 
     return null;
 }
-
 
 public function getDeviceByType(DeviceType $type): array {
     $query = 'SELECT DeviceID AS id, DeviceName AS name, DeviceTypeID AS type, Location AS state FROM Device WHERE DeviceTypeID = ' . $type->getId();

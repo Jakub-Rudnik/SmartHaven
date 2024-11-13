@@ -50,10 +50,62 @@ if (!empty($devices)) {
     echo 'No devices found for the given state.<br>';
 }
 
-
-
 echo '<h2>Device Types</h2>';
 $devicesTypes = $devicesTypeService->getDeviceTypes();
 foreach ($devicesTypes as $deviceType) {
     echo $deviceType->getId() . ' ' .  $deviceType->getName() . '<br>';
 }
+
+//change state here
+$devicesService->updateDeviceState(2, 0); 
+
+$notifications = $devicesService->getRecentNotifications();
+if (!empty($notifications)) {
+    foreach ($notifications as $notification) {
+        echo "<p>Device ID: {$notification['DeviceID']} changed state to " . ($notification['NewState'] ? 'On' : 'Off') . ".</p>";
+    }
+} else {
+    echo "<p>No recent notifications.</p>";
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <title>Device Monitor</title> -->
+    <title>Device Monitor</title>
+    <script>
+        const notifications = <?php echo json_encode($notifications); ?>;
+
+        function stateToText(state) {
+            switch (state) {
+                case 1:
+                    return 'On';
+                case 0:
+                    return 'Off';
+                case -1:
+                    return 'Error';
+                default:
+                    return 'Unknown';
+            }
+        }
+
+        function showPopup(message) {
+            alert(message);
+        }
+
+        window.onload = function() {
+            notifications.forEach(notification => {
+                const message = `Device ID: ${notification.DeviceID} changed state to ${stateToText(notification.NewState)} at ${notification.Timestamp}`;
+                showPopup(message);
+            });
+        };
+    </script>
+</head>
+<body>
+   <!-- <h1>Device Monitor</h1>
+    <p>Monitoring device changes...</p>-->
+</body>
+</html>
