@@ -1,43 +1,60 @@
 <?php
+declare(strict_types=1);
+
 require_once './Lib/Database.php';
 require_once './Services/DeviceService.php';
 require_once './Services/DeviceTypeService.php';
 
+use Services\DeviceService;
+use Services\DeviceTypeService;
+use Lib\DatabaseConnection;
+
+// Utworzenie instancji bazy danych
 $db = new DatabaseConnection();
 
+// Utworzenie instancji serwisów
 $devicesService = new DeviceService($db);
 $devicesTypeService = new DeviceTypeService($db);
 
+// Pobieranie urządzeń
 $devices = $devicesService->getDevices();
 
-echo '<h2>Devices</h2>';
+echo '<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Home Devices</title>
+    <style>
+        .device-card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 10px;
+            display: inline-block;
+            width: 200px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .device-card h3 {
+            margin: 10px 0;
+        }
+        .device-card p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h2>Devices</h2>';
+
 foreach ($devices as $device) {
-    echo $device->getName() . ' ' . $device->getType()->getName() . ' ' . $device->getState() . '<br>';
+    echo '<div class="device-card">';
+    echo '<h3>' . htmlspecialchars($device->getName()) . '</h3>';
+    echo '<p><strong>Stan:</strong> ' . ($device->getState() ? 'Włączony' : 'Wyłączony') . '</p>';
+    echo '<p><strong>Pokój:</strong> ' . ($device->getRoom() ? htmlspecialchars($device->getRoom()) : 'Nie przypisano') . '</p>';
+    echo '</div>';
 }
 
-echo '<h2>By Id</h2>';
-$device = $devicesService->getDeviceById(1);
-echo $device->getName() . ' ' . $device->getType()->getName() . ' ' . $device->getState() . '<br>';
-
-echo '<h2>By Name</h2>';
-$device = $devicesService->getDeviceByName('Tv');
-echo $device->getName() . ' ' . $device->getType()->getName() . ' ' . $device->getState() . '<br>';
-
-echo '<h2>By Type</h2>';
-$deviceType = $devicesTypeService->getDeviceTypeByName('Light');
-$devices = $devicesService->getDeviceByType($deviceType);
-foreach ($devices as $device) {
-    echo $device->getName() . ' ' . $device->getType()->getName() . ' ' . $device->getState() . '<br>';
-}
-
-echo '<h2>By State</h2>';
-$devices = $devicesService->getDeviceByState(true);
-foreach ($devices as $device) {
-    echo $device->getName() . ' ' . $device->getType()->getName() . ' ' . $device->getState() . '<br>';
-}
-
-echo '<h2>Device Types</h2>';
-$devicesTypes = $devicesTypeService->getDeviceTypes();
-foreach ($devicesTypes as $deviceType) {
-    echo $deviceType->getId() . ' ' .  $deviceType->getName() . '<br>';
-}
+echo '</body>
+</html>';
+?>

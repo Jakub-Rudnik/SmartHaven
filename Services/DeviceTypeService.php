@@ -1,97 +1,117 @@
 <?php
+declare(strict_types=1);
 
-class DeviceTypeService
-{
+namespace Services;
+
+require_once './Entity/DeviceType.php';
+require_once './Lib/Database.php';
+
+use Entity\DeviceType;
+use Lib\DatabaseConnection;
+
+class DeviceTypeService {
     private DatabaseConnection $db;
 
-    public function __construct(DatabaseConnection $db)
-    {
+    public function __construct(DatabaseConnection $db) {
         $this->db = $db;
     }
 
-    public function getDeviceTypes(): array
-    {
-        $query = 'SELECT id, name FROM DeviceType';
-
+    public function getDeviceTypes(): array {
+        $query = 'SELECT DeviceTypeID, TypeName, Description FROM DeviceType';
         return $this->queryToArray($query);
     }
 
-    public function getDeviceTypeById(int $id): DeviceType
-    {
-        $query = 'SELECT id, name FROM DeviceType WHERE id = ' . $id;
+    public function getDeviceTypeById(int $id): ?DeviceType {
+        $query = 'SELECT DeviceTypeID, TypeName, Description FROM DeviceType WHERE DeviceTypeID = :id';
+        $params = [':id' => $id];
 
         try {
-            $deviceType = $this->db->query($query)[0];
-        } catch (Exception $e) {
+            $deviceTypeData = $this->db->query($query, $params)[0];
+            return new DeviceType(
+                $deviceTypeData['DeviceTypeID'],
+                $deviceTypeData['TypeName'],
+                $deviceTypeData['Description']
+            );
+        } catch (\Exception $e) {
             echo $e->getMessage();
-        }
-
-        return new DeviceType($deviceType['id'], $deviceType['name']);
-    }
-
-    public function getDeviceTypeByName(string $name): DeviceType
-    {
-        $query = 'SELECT id, name FROM DeviceType WHERE name = "' . $name . '"';
-
-        try {
-            $deviceType = $this->db->query($query)[0];
-        } catch (Exception $e) {
-            echo $e->getMessage();
-        }
-
-        return new DeviceType($deviceType['id'], $deviceType['name']);
-    }
-
-    public function addDeviceType(DeviceType $deviceType): void
-    {
-        $query = 'INSERT INTO DeviceType (name) VALUES ("' . $deviceType->getName() . '")';
-
-        try {
-            $this->db->query($query);
-        } catch (Exception $e) {
-            echo $e->getMessage();
+            return null;
         }
     }
 
-    public function updateDeviceType(DeviceType $deviceType): void
-    {
-        $query = 'UPDATE DeviceType SET name = "' . $deviceType->getName() . '" WHERE id = ' . $deviceType->getId();
+    public function getDeviceTypeByName(string $name): ?DeviceType {
+        $query = 'SELECT DeviceTypeID, TypeName, Description FROM DeviceType WHERE TypeName = :name';
+        $params = [':name' => $name];
 
         try {
-            $this->db->query($query);
-        } catch (Exception $e) {
+            $deviceTypeData = $this->db->query($query, $params)[0];
+            return new DeviceType(
+                $deviceTypeData['DeviceTypeID'],
+                $deviceTypeData['TypeName'],
+                $deviceTypeData['Description']
+            );
+        } catch (\Exception $e) {
             echo $e->getMessage();
+            return null;
         }
     }
 
-    public function deleteDeviceType(DeviceType $deviceType): void
-    {
-        $query = 'DELETE FROM DeviceType WHERE id = ' . $deviceType->getId();
+    public function addDeviceType(DeviceType $deviceType): void {
+        $query = 'INSERT INTO DeviceType (TypeName, Description) VALUES (:name, :description)';
+        $params = [
+            ':name' => $deviceType->getName(),
+            ':description' => $deviceType->getDescription()
+        ];
 
         try {
-            $this->db->query($query);
-        } catch (Exception $e) {
+            $this->db->execute($query, $params);
+        } catch (\Exception $e) {
             echo $e->getMessage();
         }
     }
 
-    /**
-     * @param string $query
-     * @return array
-     */
-    public function queryToArray(string $query): array
-    {
+    public function updateDeviceType(DeviceType $deviceType): void {
+        $query = 'UPDATE DeviceType SET TypeName = :name, Description = :description WHERE DeviceTypeID = :id';
+        $params = [
+            ':name' => $deviceType->getName(),
+            ':description' => $deviceType->getDescription(),
+            ':id' => $deviceType->getId()
+        ];
+
         try {
-            $devicesTypes = $this->db->query($query);
-        } catch (Exception $e) {
+            $this->db->execute($query, $params);
+        } catch (\Exception $e) {
             echo $e->getMessage();
         }
+    }
 
-        $devicesTypesList = [];
-        foreach ($devicesTypes as $deviceType) {
-            $devicesTypesList[] = new DeviceType($deviceType['id'], $deviceType['name']);
+    public function deleteDeviceType(DeviceType $deviceType): void {
+        $query = 'DELETE FROM DeviceType WHERE DeviceTypeID = :id';
+        $params = [':id' => $deviceType->getId()];
+
+        try {
+            $this->db->execute($query, $params);
+        } catch (\Exception $e) {
+            echo $e->getMessage();
+        }
+    }
+
+    private function queryToArray(string $query, array $params = []): array {
+        try {
+            $deviceTypesData = $this->db->query($query, $params);
+        } catch (\Exception $e) {
+            echo $e->getMessage();
+            return [];
         }
 
-        return $devicesTypesList;
+        $deviceTypesList = [];
+        foreach ($deviceTypesData as $deviceTypeData) {
+            $deviceTypesList[] = new DeviceType(
+                $deviceTypeData['DeviceTypeID'],
+                $deviceTypeData['TypeName'],
+                $deviceTypeData['Description']
+            );
+        }
+
+        return $deviceTypesList;
     }
 }
