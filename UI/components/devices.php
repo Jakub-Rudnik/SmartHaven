@@ -4,22 +4,26 @@ $devices = [
   [
       'name' => 'Żarówka#1',
       'type' => 'bulb',
-      'state' => 0
+      'state' => 0,
+      'room' => 'Garaż'
   ],
 [
       'name' => 'Żarówka #2',
       'type' => 'bulb',
-      'state' => 1
+      'state' => 1,
+      'room' => 'Garaż'
   ],
 [
       'name' => 'Żarówka #3',
       'type' => 'bulb',
-      'state' => 0
+      'state' => 0,
+      'room' => 'Garaż'
   ],
 [
       'name' => 'Kilmatyzacja #1',
       'type' => 'ac',
-      'state' => 1
+      'state' => 1,
+      'room' => 'Kuchnia'
   ],
 ];
 
@@ -28,7 +32,10 @@ $devices = [
 <div class="d-grid gap-4 devices py-5">
     <?php foreach ($devices as $device): ?>
             <div class="rounded-4 p-4 device-card d-flex gap-2 justify-content-between align-items-center ">
-                <h5 class="mb-0 text-truncate" title="<?=$device['name']?>"><?= $device['name'] ?></h5>
+                <div class="d-flex flex-column justify-content-center">
+                    <h5 class="mb-0 text-truncate" title="<?=$device['name']?>"><?= $device['name'] ?></h5>
+                    <p class="m-0 text-secondary"><em><?=$device['room']?></em></p>
+                </div>
                 <svg class="<?=$device['state'] == 0 ? 'opacity-25' : '' ?>" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <?php
                     switch ($device['type']) {
