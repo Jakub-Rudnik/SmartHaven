@@ -93,4 +93,3 @@ $navbar = new Navbar($navItems, $currentPath);
 </main>
 </body>
 </html>
-
