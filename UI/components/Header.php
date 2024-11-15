@@ -1,10 +1,23 @@
 <?php
 
-function createHeader(string $title): void
+namespace SmartHaven\UI\components;
+
+use SmartHaven\Interfaces\UIElement;
+
+class Header implements UIElement
 {
-    $html = "
+    private string $title;
+
+    public function __construct(string $title)
+    {
+        $this->title = $title;
+    }
+
+    public function render(): string
+    {
+        $html = "
         <div class='d-flex flex-column align-items-start gap-3'>
-            <h2 class='font-bold'><strong>$title</strong></h2>
+            <h2 class='font-bold'><strong>$this->title</strong></h2>
             <div class='d-flex flex-column flex-md-row gap-2 gap-md-4'>
                 <div class='d-flex gap-2 align-items-center'>
                     <svg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'>
@@ -51,8 +64,10 @@ function createHeader(string $title): void
         </script>
     ";
 
-    echo $html;
+        return $html;
+    }
 }
+
 
 
 
