@@ -1,8 +1,8 @@
 <?php
 
-namespace SmartHaven\UI\components;
+namespace UI\components;
 
-use SmartHaven\Interfaces\UIElement;
+use Interfaces\UIElement;
 
 class Navbar implements UIElement
 {

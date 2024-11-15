@@ -6,25 +6,29 @@ namespace Lib;
 use PDO;
 use Exception;
 
-class DatabaseConnection {
+class DatabaseConnection
+{
     private ?PDO $pdo;
 
     private string $dsn = 'mysql:host=db;port=3306;dbname=smarthaven';
     private string $username = 'smarthaven';
     private string $password = 'smarthaven';
 
-    private function openConnection() {
+    private function openConnection()
+    {
         $this->pdo = new PDO($this->dsn, $this->username, $this->password);
     }
 
-    private function closeConnection(): void {
+    private function closeConnection(): void
+    {
         $this->pdo = null;
     }
 
     /**
      * @throws Exception
      */
-    public function query(string $query, array $params = []): array {
+    public function query(string $query, array $params = []): array
+    {
         $this->openConnection();
 
         $statement = $this->pdo->prepare($query);
@@ -40,7 +44,8 @@ class DatabaseConnection {
         return $result;
     }
 
-    public function execute(string $query, array $params = []): void {
+    public function execute(string $query, array $params = []): void
+    {
         $this->openConnection();
 
         $statement = $this->pdo->prepare($query);
@@ -49,4 +54,5 @@ class DatabaseConnection {
         $this->closeConnection();
     }
 }
+
 ?>

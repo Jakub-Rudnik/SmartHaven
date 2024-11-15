@@ -1,8 +1,10 @@
 <?php
 
-namespace SmartHaven\UI\components;
+namespace UI\components;
 
-use SmartHaven\Interfaces\UIElement;
+use Lib\DatabaseConnection;
+use Services\DeviceService;
+use Interfaces\UIElement;
 
 class Devices implements UIElement
 {
