@@ -8,40 +8,14 @@ use Interfaces\UIElement;
 
 class Devices implements UIElement
 {
-    private array $devices;
+    private array $devices = [];
+//    private DatabaseConnection $db;
+    private DeviceService $deviceService;
 
-    public function __construct()
+    public function __construct(DatabaseConnection $db)
     {
-        $this->devices = [
-            [
-                'name' => 'Żarówka#1',
-                'type' => 'bulb',
-                'state' => 0,
-                'room' => 'Garaż',
-                'id' => 1
-            ],
-            [
-                'name' => 'Żarówka #2',
-                'type' => 'bulb',
-                'state' => 1,
-                'room' => 'Garaż',
-                'id' => 2
-            ],
-            [
-                'name' => 'Żarówka #3',
-                'type' => 'bulb',
-                'state' => 0,
-                'room' => 'Garaż',
-                'id' => 3
-            ],
-            [
-                'name' => 'Kilmatyzacja #1',
-                'type' => 'ac',
-                'state' => 1,
-                'room' => 'Kuchnia',
-                'id' => 4
-            ],
-        ];
+        $this->deviceService = new DeviceService($db);
+        $this->devices = $this->deviceService->getDevices();
     }
 
     public function render(): string
@@ -51,13 +25,13 @@ class Devices implements UIElement
         $html .= "<div class='d-grid gap-4 devices py-5'>";
         foreach ($this->devices as $device) {
             $html .= "
-            <a class='rounded-4 p-4 device-card d-flex gap-2 justify-content-between align-items-center text-decoration-none text-white' href='/devices/{$device['id']}'>
+            <a class='rounded-4 p-4 device-card d-flex gap-2 justify-content-between align-items-center text-decoration-none text-white' href='/devices/{$device->getId()}'>
                 <div class='d-flex flex-column justify-content-center'>
-                    <h5 class='mb-0 text-truncate' title='{$device['name']}'>{$device['name']}</h5>
-                    <p class='m-0 text-secondary'><em>{$device['room']}</em></p>
+                    <h5 class='mb-0 text-truncate' title='{$device->getName()}'>{$device->getName()}</h5>
+                    <p class='m-0 text-secondary'><em>{$device->getRoom()}</em></p>
                 </div>
-                <svg class='".($device['state'] == 0 ? 'opacity-25' : '')."' width='64' height='64' viewBox='0 0 64 64' fill='none' xmlns='http://www.w3.org/2000/svg'>
-                    ".$this->getDeviceIcon($device['type'])."
+                <svg class='".($device->getState() == 0 ? 'opacity-25' : '')."' width='64' height='64' viewBox='0 0 64 64' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                    ".$this->getDeviceIcon($device->getType()->getName())."
                 </svg>
             </a>";
         }
