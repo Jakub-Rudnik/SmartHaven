@@ -136,10 +136,21 @@ try {
             const endTimeSelected = $('#end-time').val() !== '';
             const cycleDaysSelected = ($('#everyday').prop('checked') || $('.weekdays:checked').length > 0);
 
-            if (deviceSelected && startTimeSelected && endTimeSelected && cycleDaysSelected) {
+            // Validate start and end time
+            const startTime = $('#start-time').val();
+            const endTime = $('#end-time').val();
+            const timeValid = startTime < endTime;
+
+            // Enable or disable submit button
+            if (deviceSelected && startTimeSelected && endTimeSelected && cycleDaysSelected && timeValid) {
                 $('#submit-button').prop('disabled', false);  // Enable submit button
             } else {
                 $('#submit-button').prop('disabled', true);  // Disable submit button
+            }
+
+            // Show error message if time is invalid
+            if (!timeValid && startTimeSelected && endTimeSelected) {
+                alert("Czas włączenia musi być wcześniejszy niż czas wyłączenia.");
             }
         }
 
@@ -149,6 +160,7 @@ try {
         });
     });
 </script>
+
 
 </body>
 </html>
