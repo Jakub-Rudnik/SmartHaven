@@ -1,5 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
+require_once './Entity/Device.php';
+require_once './Entity/DeviceType.php';
+require_once './Services/DeviceTypeService.php';
+require_once './Lib/Database.php';
+
 class DeviceTypeService
 {
     private DatabaseConnection $db;
@@ -11,40 +18,40 @@ class DeviceTypeService
 
     public function getDeviceTypes(): array
     {
-        $query = 'SELECT id, name FROM DeviceType';
+        $query = 'SELECT DeviceTypeID, TypeName, Description FROM DeviceType';
 
         return $this->queryToArray($query);
     }
 
-    public function getDeviceTypeById(int $id): DeviceType
+    public function getDeviceTypeById(int $id): ?DeviceType
     {
-        $query = 'SELECT id, name FROM DeviceType WHERE id = ' . $id;
+        $query = 'SELECT DeviceTypeID, TypeName, Description FROM DeviceType WHERE DeviceTypeID = ' . $id;
 
         try {
             $deviceType = $this->db->query($query)[0];
+            return new DeviceType($deviceType['DeviceTypeID'], $deviceType['TypeName'], $deviceType['Description']);
         } catch (Exception $e) {
             echo $e->getMessage();
+            return null;
         }
-
-        return new DeviceType($deviceType['id'], $deviceType['name']);
     }
 
-    public function getDeviceTypeByName(string $name): DeviceType
+    public function getDeviceTypeByName(string $name): ?DeviceType
     {
-        $query = 'SELECT id, name FROM DeviceType WHERE name = "' . $name . '"';
+        $query = 'SELECT DeviceTypeID, TypeName, Description FROM DeviceType WHERE TypeName = "' . $name . '"';
 
         try {
             $deviceType = $this->db->query($query)[0];
+            return new DeviceType($deviceType['DeviceTypeID'], $deviceType['TypeName'], $deviceType['Description']);
         } catch (Exception $e) {
             echo $e->getMessage();
+            return null;
         }
-
-        return new DeviceType($deviceType['id'], $deviceType['name']);
     }
 
     public function addDeviceType(DeviceType $deviceType): void
     {
-        $query = 'INSERT INTO DeviceType (name) VALUES ("' . $deviceType->getName() . '")';
+        $query = 'INSERT INTO DeviceType (TypeName, Description) VALUES ("' . $deviceType->getName() . '", "' . $deviceType->getDescription() . '")';
 
         try {
             $this->db->query($query);
@@ -55,7 +62,7 @@ class DeviceTypeService
 
     public function updateDeviceType(DeviceType $deviceType): void
     {
-        $query = 'UPDATE DeviceType SET name = "' . $deviceType->getName() . '" WHERE id = ' . $deviceType->getId();
+        $query = 'UPDATE DeviceType SET TypeName = "' . $deviceType->getName() . '", Description = "' . $deviceType->getDescription() . '" WHERE DeviceTypeID = ' . $deviceType->getId();
 
         try {
             $this->db->query($query);
@@ -66,7 +73,7 @@ class DeviceTypeService
 
     public function deleteDeviceType(DeviceType $deviceType): void
     {
-        $query = 'DELETE FROM DeviceType WHERE id = ' . $deviceType->getId();
+        $query = 'DELETE FROM DeviceType WHERE DeviceTypeID = ' . $deviceType->getId();
 
         try {
             $this->db->query($query);
@@ -82,16 +89,18 @@ class DeviceTypeService
     public function queryToArray(string $query): array
     {
         try {
-            $devicesTypes = $this->db->query($query);
+            $deviceTypes = $this->db->query($query);
         } catch (Exception $e) {
             echo $e->getMessage();
+            return [];
         }
 
-        $devicesTypesList = [];
-        foreach ($devicesTypes as $deviceType) {
-            $devicesTypesList[] = new DeviceType($deviceType['id'], $deviceType['name']);
+        $deviceTypesList = [];
+        foreach ($deviceTypes as $deviceType) {
+            $deviceTypesList[] = new DeviceType($deviceType['DeviceTypeID'], $deviceType['TypeName'], $deviceType['Description']);
         }
 
-        return $devicesTypesList;
+        return $deviceTypesList;
     }
 }
+?>

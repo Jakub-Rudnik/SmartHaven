@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 require_once './Entity/Device.php';
@@ -8,7 +9,7 @@ require_once './Lib/Database.php';
 
 class DeviceService {
     private DatabaseConnection $db;
-    private $deviceTypeService;
+    private DeviceTypeService $deviceTypeService;
 
     public function __construct(DatabaseConnection $db) {
         $this->db = $db;
@@ -16,71 +17,87 @@ class DeviceService {
     }
 
     public function getDevices(): array {
-        $query = 'SELECT id, name, type, state FROM Device';
-
+        $query = "SELECT d.DeviceID, d.DeviceName, d.DeviceTypeID, d.Location, dp.Value AS State
+                  FROM Device d
+                  LEFT JOIN DeviceParameter dp ON d.DeviceID = dp.DeviceID AND dp.ParameterID = 1";
         return $this->queryToArray($query);
     }
 
-    public function getDeviceById(int $id): Device {
-        $query = 'SELECT id, name, state, type FROM Device WHERE id = ' . $id;
-
+    public function getDeviceById(int $id): ?Device {
+        $query = "SELECT d.DeviceID, d.DeviceName, d.DeviceTypeID, d.Location, dp.Value AS State
+                  FROM Device d
+                  LEFT JOIN DeviceParameter dp ON d.DeviceID = dp.DeviceID AND dp.ParameterID = 1
+                  WHERE d.DeviceID = $id";
+        
         try {
-            $device = $this->db->query($query)[0];
+            $devices = $this->db->query($query);
+            if (!empty($devices)) {
+                $deviceData = $devices[0];
+                $deviceType = $this->deviceTypeService->getDeviceTypeById((int) $deviceData['DeviceTypeID']);
+                $state = isset($deviceData['State']) && $deviceData['State'] === '1';
+                return new Device((int) $deviceData['DeviceID'], $deviceData['DeviceName'], $deviceType, $state, $deviceData['Location']);
+            }
+            return null;
         } catch (Exception $e) {
             echo $e->getMessage();
+            return null;
         }
-
-        $deviceType = $this->deviceTypeService->getDeviceTypeById($device['type']);
-
-        return new Device($device['id'], $device['name'], $deviceType , (bool) $device['state']);
     }
 
-    public function getDeviceByName(string $name): Device | null {
-        $query = 'SELECT id, name, state, type FROM Device WHERE name = "' . $name . '"';
+    public function getDeviceByName(string $name): ?Device {
+        $query = "SELECT d.DeviceID, d.DeviceName, d.DeviceTypeID, d.Location, dp.Value AS State
+                  FROM Device d
+                  LEFT JOIN DeviceParameter dp ON d.DeviceID = dp.DeviceID AND dp.ParameterID = 1
+                  WHERE d.DeviceName = '$name'";
 
         try {
-            $device = $this->db->query($query)[0];
-            $deviceType = $this->deviceTypeService->getDeviceTypeById($device['type']);
-            return new Device($device['id'], $device['name'], $deviceType, (bool) $device['state']);
+            $devices = $this->db->query($query);
+            if (!empty($devices)) {
+                $deviceData = $devices[0];
+                $deviceType = $this->deviceTypeService->getDeviceTypeById((int) $deviceData['DeviceTypeID']);
+                $state = isset($deviceData['State']) && $deviceData['State'] === '1';
+                return new Device((int) $deviceData['DeviceID'], $deviceData['DeviceName'], $deviceType, $state, $deviceData['Location']);
+            }
+            return null;
         } catch (Exception $e) {
             echo $e->getMessage();
+            return null;
         }
-
-        return null;
     }
 
-    public function getDeviceByType(DeviceType $type): array {
-        $query = 'SELECT id, name, type, state FROM Device WHERE type = "' . $type->getId() . '"';
-
+    public function getDevicesByType(DeviceType $type): array {
+        $query = "SELECT d.DeviceID, d.DeviceName, d.DeviceTypeID, d.Location, dp.Value AS State
+                  FROM Device d
+                  LEFT JOIN DeviceParameter dp ON d.DeviceID = dp.DeviceID AND dp.ParameterID = 1
+                  WHERE d.DeviceTypeID = " . $type->getId();
         return $this->queryToArray($query);
     }
 
-    public function getDeviceByState(bool $state): array {
-        $query = 'SELECT id, name, type, state FROM Device WHERE state = "' . (int) $state . '"';
-
+    public function getDevicesByState(bool $state): array {
+        $stateValue = $state ? '1' : '0';
+        $query = "SELECT d.DeviceID, d.DeviceName, d.DeviceTypeID, d.Location, dp.Value AS State
+                  FROM Device d
+                  LEFT JOIN DeviceParameter dp ON d.DeviceID = dp.DeviceID AND dp.ParameterID = 1
+                  WHERE dp.Value = '$stateValue'";
         return $this->queryToArray($query);
     }
 
-    /**
-     * @param string $query
-     * @return array
-     */
-    public function queryToArray(string $query): array
-    {
+    private function queryToArray(string $query): array {
         try {
             $devices = $this->db->query($query);
         } catch (Exception $e) {
             echo $e->getMessage();
+            return [];
         }
 
         $deviceList = [];
-        foreach ($devices as $device) {
-            $deviceType = $this->deviceTypeService->getDeviceTypeById($device['type']);
-
-            $deviceList[] = new Device($device['id'], $device['name'], $deviceType, (bool) $device['state']);
+        foreach ($devices as $deviceData) {
+            $deviceType = $this->deviceTypeService->getDeviceTypeById((int) $deviceData['DeviceTypeID']);
+            $state = isset($deviceData['State']) && $deviceData['State'] === '1';
+            $deviceList[] = new Device((int) $deviceData['DeviceID'], $deviceData['DeviceName'], $deviceType, $state, $deviceData['Location']);
         }
 
         return $deviceList;
     }
-
 }
+?>
