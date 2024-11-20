@@ -1,0 +1,23 @@
+/* styles/notifications.css */
+
+/* Simple styles for notifications */
+.notifications-container {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    width: 300px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background-color: #222;
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 1000; /* Ensure the notifications are on top */
+}
+
+.notification {
+    background-color: #333;
+    padding: 10px;
+    margin-bottom: 5px;
+    border-radius: 3px;
+    color: #fff;
+}

@@ -1,121 +1,190 @@
 <?php
 declare(strict_types=1);
 
+namespace Services;
+
 require_once './Entity/Device.php';
 require_once './Entity/DeviceType.php';
 require_once './Services/DeviceTypeService.php';
-require_once './Lib/Database.php';
+require_once './Lib/DatabaseConnection.php';
 
-class DeviceService {
+use Entity\Device;
+use Entity\DeviceType;
+use Exception;
+use Lib\DatabaseConnection;
+use Services\DeviceTypeService;
+
+class DeviceService 
+{
     private DatabaseConnection $db;
-    private $deviceTypeService;
+    private DeviceTypeService $deviceTypeService;
 
-    public function __construct(DatabaseConnection $db) {
+    
+
+    public function __construct(DatabaseConnection $db) 
+    {
         $this->db = $db;
         $this->deviceTypeService = new DeviceTypeService($db);
     }
 
-    public function getDevices(): array {
-        $query = 'SELECT DeviceID AS id, DeviceName AS name, DeviceTypeID AS type, Location AS state FROM Device';
-        return $this->queryToArray($query);
+
+    public function getDevices(): array 
+    {
+        $sql = "SELECT d.DeviceID, d.DeviceName, d.DeviceTypeID, d.Location 
+                FROM Device d";
+        $result = $this->db->query($sql);
+
+        $devices = [];
+        foreach ($result as $row) {
+            $deviceType = $this->deviceTypeService->getDeviceTypeById($row['DeviceTypeID']);
+            $status = $this->getDeviceStatus($row['DeviceID']);
+
+            $device = new Device(
+                $row['DeviceID'],
+                $row['DeviceName'],
+                $deviceType,
+                $row['Location'],
+                $status
+            );
+            $devices[] = $device;
+        }
+        return $devices;
     }
     
-    public function getDeviceById(int $id): Device {
-        $query = 'SELECT DeviceID AS id, DeviceName AS name, Location AS state, DeviceTypeID AS type FROM Device WHERE DeviceID = ' . $id;
+    public function getDeviceById(int $id): Device 
+    {
+        $query = 'SELECT DeviceID, DeviceName, DeviceTypeID, Location FROM Device WHERE DeviceID = :id';
+        $params = [':id' => $id];
+
         try {
-            $device = $this->db->query($query)[0];
+            $deviceData = $this->db->query($query, $params)[0];
+            $deviceType = $this->deviceTypeService->getDeviceTypeById($deviceData['DeviceTypeID']);
+            $status = $this->getDeviceStatus($deviceData['DeviceID']);
+
+            return new Device(
+                $deviceData['DeviceID'],
+                $deviceData['DeviceName'],
+                $deviceType,
+                $deviceData['Location'],
+                $status
+            );
         } catch (Exception $e) {
             echo $e->getMessage();
+            return null;
         }
-    
-        $deviceType = $this->deviceTypeService->getDeviceTypeById($device['type']);
-        return new Device($device['id'], $device['name'], $deviceType, (bool) $device['state']);
     }
 
-public function updateDeviceState(int $deviceId, int $newState): void {
-    $query = 'SELECT State FROM Device WHERE DeviceID = :deviceId';
-    $currentState = $this->db->query($query, ['deviceId' => $deviceId])[0]['State'];
+    private function getDeviceStatus(int $deviceId): bool
+    {
+        $query = "SELECT Value FROM DeviceParameter WHERE DeviceID = :deviceId AND ParameterID = 1"; // ParameterID = 1 oznacza Status
+        $params = [':deviceId' => $deviceId];
 
-    if ($currentState !== $newState) {
-        $updateQuery = 'UPDATE Device SET State = :newState WHERE DeviceID = :deviceId';
-        $this->db->query($updateQuery, ['newState' => $newState, 'deviceId' => $deviceId]);
-
-        $this->logStateChange($deviceId, $newState);
-    }
-}
-
-
-private function logStateChange(int $deviceId, int $newState): void {
-    $logQuery = 'INSERT INTO Notifications (DeviceID, NewState, Timestamp) VALUES (:deviceId, :newState, NOW())';
-    $this->db->query($logQuery, ['deviceId' => $deviceId, 'newState' => $newState]);
-}
-
-
-public function getRecentNotifications(): array {
-    $query = 'SELECT * FROM Notifications WHERE Timestamp >= NOW() - INTERVAL 5 SECOND';
-    return $this->db->query($query);
-}
-
-public function getDeviceByName(string $name): Device | null {
-    $query = 'SELECT DeviceID AS id, DeviceName AS name, DeviceTypeID AS type, Location AS state FROM Device WHERE DeviceName = "' . $name . '"';
-
-    try {
-        $device = $this->db->query($query)[0];
-        $deviceType = $this->deviceTypeService->getDeviceTypeById($device['type']);
-        return new Device($device['id'], $device['name'], $deviceType, (bool)$device['state']);
-    } catch (Exception $e) {
-        echo $e->getMessage();
-    }
-
-    return null;
-}
-
-public function getDeviceByType(DeviceType $type): array {
-    $query = 'SELECT DeviceID AS id, DeviceName AS name, DeviceTypeID AS type, Location AS state FROM Device WHERE DeviceTypeID = ' . $type->getId();
-    return $this->queryToArray($query);
-}
-
-
-public function getDeviceByState(bool $state): array {
-    $query = 'SELECT DeviceID AS id, DeviceName AS name, DeviceTypeID AS type, Location AS state FROM Device WHERE state = :state';
-    return $this->queryToArray($query, ['state' => (int) $state]);
-}
-public function getDevicesWithoutLocation(): array
-   {
-       $devicesWithoutLocation = [];
-
-       try {
-           $query = "SELECT DeviceName FROM Device WHERE Location IS NULL";
-           $result = $this->db->query($query);
-
-           foreach ($result as $row) {
-               $devicesWithoutLocation[] = $row['DeviceName'];
-           }
-       } catch (Exception $e) {
-           echo "Error: " . $e->getMessage();
-       }
-       return $devicesWithoutLocation;
-   }
-    /**
-     * @param string $query
-     * @return array
-     */
-    public function queryToArray(string $query, array $params = []): array {
         try {
-            $devices = $this->db->query($query, $params);
+            $result = $this->db->query($query, $params);
+            if (count($result) > 0) {
+                return $result[0]['Value'] === '1';
+            }
+            return false; // Domyślnie, jeśli nie ma wartości, zakładamy, że urządzenie jest wyłączone
+        } catch (Exception $e) {
+            echo $e->getMessage();
+            return false;
+        }
+    }
+
+    public function updateDeviceStatus(int $deviceId, string $newState)
+    {
+        // Get the current status
+        $currentStatus = $this->getDeviceStatus($deviceId);
+
+        // Check if the new status is different from the current status
+        if ($currentStatus !== ($newState === '1')) {
+            // Update the device status in the DeviceParameter table
+            $updateQuery = "UPDATE DeviceParameter SET Value = :newState WHERE DeviceID = :deviceId AND ParameterID = 1"; // ParameterID = 1 means 'Status'
+            $updateParams = [
+                ':newState' => $newState,
+                ':deviceId' => $deviceId
+            ];
+            $this->db->query($updateQuery, $updateParams);
+
+            // Insert new notification into the Notifications table
+            $insertQuery = "INSERT INTO Notifications (DeviceID, NewState) VALUES (:deviceId, :newState)";
+            $insertParams = [
+                ':deviceId' => $deviceId,
+                ':newState' => $newState
+            ];
+            $this->db->query($insertQuery, $insertParams);
+        }
+    }
+
+    
+   
+
+    public function getDevicesByType(DeviceType $type): array
+    {
+        $query = 'SELECT DeviceID, DeviceName, DeviceTypeID, Location FROM Device WHERE DeviceTypeID = :typeId';
+        $params = [':typeId' => $type->getId()];
+
+        return $this->queryToArray($query, $params);
+    }
+
+
+
+    // public function getDevicesWithoutLocation(): array
+    // {
+    //     $devicesWithoutLocation = [];
+
+    //     try {
+    //         $query = "SELECT DeviceName FROM Device WHERE Location IS NULL";
+    //         $result = $this->db->query($query);
+
+    //         foreach ($result as $row) {
+    //             $devicesWithoutLocation[] = $row['DeviceName'];
+    //         }
+    //     } catch (Exception $e) {
+    //         echo "Error: " . $e->getMessage();
+    //     }
+    //     return $devicesWithoutLocation;
+    // }
+
+    public function getDevicesByLocation(string $location): array
+    {
+        $query = 'SELECT DeviceID, DeviceName, DeviceTypeID, Location FROM Device WHERE Location = :location';
+        $params = [':location' => $location];
+
+        return $this->queryToArray($query, $params);
+    }
+
+
+
+
+
+
+
+
+    private function queryToArray(string $query, array $params = []): array
+    {
+        try {
+            $devicesData = $this->db->query($query, $params);
         } catch (Exception $e) {
             echo $e->getMessage();
             return [];
         }
-    
+
         $deviceList = [];
-        foreach ($devices as $device) {
-            $deviceType = $this->deviceTypeService->getDeviceTypeById($device['type']);
-            $deviceList[] = new Device($device['id'], $device['name'], $deviceType, (bool) $device['state']);
+        foreach ($devicesData as $deviceData) {
+            $deviceType = $this->deviceTypeService->getDeviceTypeById($deviceData['DeviceTypeID']);
+            $status = $this->getDeviceStatus($deviceData['DeviceID']);
+
+            $deviceList[] = new Device(
+                $deviceData['DeviceID'],
+                $deviceData['DeviceName'],
+                $deviceType,
+                $deviceData['Location'],
+                $status
+            );
         }
-    
+
         return $deviceList;
     }
-    
 
 }

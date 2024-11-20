@@ -36,6 +36,14 @@ services:
         - db
     networks:
         - smarthaven-docker
+  websocket:
+    build:
+      context: .
+      dockerfile: Dockerfile.websocket
+    ports:
+      - 8082:8082  # Port WebSocket
+    networks:
+      - smarthaven-docker
 networks:
  smarthaven-docker:
      driver: bridge
