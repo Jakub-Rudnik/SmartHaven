@@ -23,32 +23,32 @@ try {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['schedule_device'])) {
     try {
-        // Pobranie danych z formularza
+        // Downloading data from the form
         $deviceID = $_POST['device_id'];
         $startTime = $_POST['start_time'];
         $endTime = $_POST['end_time'];
         $cycleDays = isset($_POST['cycle_days']) ? implode(',', $_POST['cycle_days']) : null;
 
-        // Walidacja danych
+        // Data validation
         if (empty($deviceID) || empty($startTime) || empty($endTime) || empty($cycleDays)) {
             throw new Exception("Wszystkie pola są wymagane!");
         }
 
-        // Pobieramy dzisiejszą datę
+        // Download today's date
         $currentDate = date('Y-m-d');
 
-        // Dodajemy datę do godziny (np. 17:33 -> 2024-11-21 17:33:00)
+        // Add the date to the time (17:33 -> 2024-11-21 17:33:00)
         $startDateTime = $currentDate . ' ' . $startTime . ':00';
         $endDateTime = $currentDate . ' ' . $endTime . ':00';
 
         $parameterID = 1;
 
-        // Przygotowanie zapytania SQL do dodania harmonogramu
+        // Preparing an SQL query to add a schedule
         $insertQuery = "
             INSERT INTO Schedule (DeviceID, StartTime, EndTime, ParameterID, RepeatPattern, ScheduleState) 
             VALUES (:device_id, :start_time, :end_time, :parameter_id, :repeat_pattern, 0)";
         
-        // Parametry do bazy danych
+        // Parameters for the database
         $params = [
             ':device_id' => $deviceID,
             ':start_time' => $startDateTime,
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['schedule_device'])) {
             ':repeat_pattern' => $cycleDays,
         ];
 
-        // Wykonanie zapytania do bazy danych
+        // Execution of a database query
         $db->execute($insertQuery, $params);
 
         echo "Harmonogram został zapisany pomyślnie!";
