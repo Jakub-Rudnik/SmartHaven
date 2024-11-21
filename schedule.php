@@ -21,6 +21,50 @@ try {
     echo "Błąd: " . $e->getMessage();
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['schedule_device'])) {
+    try {
+        // Pobranie danych z formularza
+        $deviceID = $_POST['device_id'];
+        $startTime = $_POST['start_time'];
+        $endTime = $_POST['end_time'];
+        $cycleDays = isset($_POST['cycle_days']) ? implode(',', $_POST['cycle_days']) : null;
+
+        // Walidacja danych
+        if (empty($deviceID) || empty($startTime) || empty($endTime) || empty($cycleDays)) {
+            throw new Exception("Wszystkie pola są wymagane!");
+        }
+
+        // Pobieramy dzisiejszą datę
+        $currentDate = date('Y-m-d');
+
+        // Dodajemy datę do godziny (np. 17:33 -> 2024-11-21 17:33:00)
+        $startDateTime = $currentDate . ' ' . $startTime . ':00';
+        $endDateTime = $currentDate . ' ' . $endTime . ':00';
+
+        $parameterID = 1;
+
+        // Przygotowanie zapytania SQL do dodania harmonogramu
+        $insertQuery = "
+            INSERT INTO Schedule (DeviceID, StartTime, EndTime, ParameterID, RepeatPattern, ScheduleState) 
+            VALUES (:device_id, :start_time, :end_time, :parameter_id, :repeat_pattern, 0)";
+        
+        // Parametry do bazy danych
+        $params = [
+            ':device_id' => $deviceID,
+            ':start_time' => $startDateTime,
+            ':end_time' => $endDateTime,
+            ':parameter_id' => $parameterID,
+            ':repeat_pattern' => $cycleDays,
+        ];
+
+        // Wykonanie zapytania do bazy danych
+        $db->execute($insertQuery, $params);
+
+        echo "Harmonogram został zapisany pomyślnie!";
+    } catch (Exception $e) {
+        echo "Błąd: " . $e->getMessage();
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -83,14 +127,14 @@ try {
         <!-- Add of cycle_days-->
         <div class="form-group">
             <label>Wybierz dni cyklu:</label><br>
-            <label><input type="checkbox" id="everyday" name="cycle_days[]" value="everyday"> Codziennie</label><br>
-            <label><input type="checkbox" name="cycle_days[]" value="monday" class="weekdays"> Poniedziałek</label><br>
-            <label><input type="checkbox" name="cycle_days[]" value="tuesday" class="weekdays"> Wtorek</label><br>
-            <label><input type="checkbox" name="cycle_days[]" value="wednesday" class="weekdays"> Środa</label><br>
-            <label><input type="checkbox" name="cycle_days[]" value="thursday" class="weekdays"> Czwartek</label><br>
-            <label><input type="checkbox" name="cycle_days[]" value="friday" class="weekdays"> Piątek</label><br>
-            <label><input type="checkbox" name="cycle_days[]" value="saturday" class="weekdays"> Sobota</label><br>
-            <label><input type="checkbox" name="cycle_days[]" value="sunday" class="weekdays"> Niedziela</label><br>
+            <label><input type="checkbox" id="everyday" name="cycle_days[]" value="codzien"> Codziennie</label><br>
+            <label><input type="checkbox" name="cycle_days[]" value="poniedziałek" class="weekdays"> Poniedziałek</label><br>
+            <label><input type="checkbox" name="cycle_days[]" value="wtorek" class="weekdays"> Wtorek</label><br>
+            <label><input type="checkbox" name="cycle_days[]" value="środa" class="weekdays"> Środa</label><br>
+            <label><input type="checkbox" name="cycle_days[]" value="czwartek" class="weekdays"> Czwartek</label><br>
+            <label><input type="checkbox" name="cycle_days[]" value="piątek" class="weekdays"> Piątek</label><br>
+            <label><input type="checkbox" name="cycle_days[]" value="sobota" class="weekdays"> Sobota</label><br>
+            <label><input type="checkbox" name="cycle_days[]" value="niedziela" class="weekdays"> Niedziela</label><br>
         </div>
         
         <button type="submit" name="schedule_device" id="submit-button" disabled>Zapisz</button>
@@ -147,20 +191,14 @@ try {
             } else {
                 $('#submit-button').prop('disabled', true);  // Disable submit button
             }
-
-            // Show error message if time is invalid
-            if (!timeValid && startTimeSelected && endTimeSelected) {
-                alert("Czas włączenia musi być wcześniejszy niż czas wyłączenia.");
-            }
         }
 
-        // Run check when any input changes
-        $('#device-select, #start-time, #end-time, .weekdays').change(function() {
+        // Validate when fields are changed
+        $('#device-select, #start-time, #end-time').change(function() {
             toggleSubmitButton();
         });
     });
 </script>
-
 
 </body>
 </html>
