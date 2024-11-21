@@ -1,8 +1,8 @@
 <?php
 
-namespace SmartHaven\UI\components;
+namespace UI\components;
 
-use SmartHaven\Interfaces\UIElement;
+use Interfaces\UIElement;
 
 class Navbar implements UIElement
 {
@@ -39,7 +39,7 @@ class Navbar implements UIElement
         $html .= '</ul></nav>';
 
         //DESKTOP MENU
-        $html .= '<div class="card d-none d-md-flex flex-column justify-content-between align-items-center p-4 h-100 navbar bg-dark-subtle">
+        $html .= '<div class="card d-none d-md-flex flex-column justify-content-between align-items-center p-4 min-h-100 navbar bg-dark-subtle">
                     <div class="d-flex flex-column justify-content-between align-items-center w-100 gap-4">
                         <!--Symbol logo-->
                             <svg class="d-xl-none" width="46" height="37" viewBox="0 0 46 37" fill="none" xmlns="http://www.w3.org/2000/svg">

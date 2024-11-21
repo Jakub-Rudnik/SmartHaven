@@ -4,24 +4,29 @@ declare(strict_types=1);
 namespace Services;
 
 require_once './Entity/DeviceType.php';
-require_once './Lib/Database.php';
+require_once './Lib/DatabaseConnection.php';
 
 use Entity\DeviceType;
+use Exception;
 use Lib\DatabaseConnection;
 
-class DeviceTypeService {
+class DeviceTypeService
+{
     private DatabaseConnection $db;
 
-    public function __construct(DatabaseConnection $db) {
+    public function __construct(DatabaseConnection $db)
+    {
         $this->db = $db;
     }
 
-    public function getDeviceTypes(): array {
+    public function getDeviceTypes(): array
+    {
         $query = 'SELECT DeviceTypeID, TypeName, Description FROM DeviceType';
         return $this->queryToArray($query);
     }
 
-    public function getDeviceTypeById(int $id): ?DeviceType {
+    public function getDeviceTypeById(int $id): ?DeviceType
+    {
         $query = 'SELECT DeviceTypeID, TypeName, Description FROM DeviceType WHERE DeviceTypeID = :id';
         $params = [':id' => $id];
 
@@ -32,13 +37,14 @@ class DeviceTypeService {
                 $deviceTypeData['TypeName'],
                 $deviceTypeData['Description']
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             echo $e->getMessage();
             return null;
         }
     }
 
-    public function getDeviceTypeByName(string $name): ?DeviceType {
+    public function getDeviceTypeByName(string $name): ?DeviceType
+    {
         $query = 'SELECT DeviceTypeID, TypeName, Description FROM DeviceType WHERE TypeName = :name';
         $params = [':name' => $name];
 
@@ -49,13 +55,14 @@ class DeviceTypeService {
                 $deviceTypeData['TypeName'],
                 $deviceTypeData['Description']
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             echo $e->getMessage();
             return null;
         }
     }
 
-    public function addDeviceType(DeviceType $deviceType): void {
+    public function addDeviceType(DeviceType $deviceType): void
+    {
         $query = 'INSERT INTO DeviceType (TypeName, Description) VALUES (:name, :description)';
         $params = [
             ':name' => $deviceType->getName(),
@@ -64,12 +71,13 @@ class DeviceTypeService {
 
         try {
             $this->db->execute($query, $params);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             echo $e->getMessage();
         }
     }
 
-    public function updateDeviceType(DeviceType $deviceType): void {
+    public function updateDeviceType(DeviceType $deviceType): void
+    {
         $query = 'UPDATE DeviceType SET TypeName = :name, Description = :description WHERE DeviceTypeID = :id';
         $params = [
             ':name' => $deviceType->getName(),
@@ -79,26 +87,28 @@ class DeviceTypeService {
 
         try {
             $this->db->execute($query, $params);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             echo $e->getMessage();
         }
     }
 
-    public function deleteDeviceType(DeviceType $deviceType): void {
+    public function deleteDeviceType(DeviceType $deviceType): void
+    {
         $query = 'DELETE FROM DeviceType WHERE DeviceTypeID = :id';
         $params = [':id' => $deviceType->getId()];
 
         try {
             $this->db->execute($query, $params);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             echo $e->getMessage();
         }
     }
 
-    private function queryToArray(string $query, array $params = []): array {
+    private function queryToArray(string $query, array $params = []): array
+    {
         try {
             $deviceTypesData = $this->db->query($query, $params);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             echo $e->getMessage();
             return [];
         }

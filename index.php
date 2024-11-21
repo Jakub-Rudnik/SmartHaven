@@ -1,9 +1,10 @@
 <?php
 require_once 'autoload.php';
 
-use SmartHaven\UI\components\Navbar;
-use SmartHaven\UI\components\Dashboard;
-use SmartHaven\UI\components\Devices;
+use UI\components\Navbar;
+use UI\components\Dashboard;
+use UI\components\Devices;
+use Lib\DatabaseConnection;
 
 $currentPath = $_SERVER['REQUEST_URI'];
 $navItems = [
@@ -56,6 +57,8 @@ $navItems = [
     ]
 ];
 
+
+$DatabaseConnection = new DatabaseConnection();
 $navbar = new Navbar($navItems, $currentPath);
 ?>
 
@@ -67,7 +70,7 @@ $navbar = new Navbar($navItems, $currentPath);
     <title>SmartHaven</title>
     <link rel="stylesheet" href="/styles/main.css">
 </head>
-<body class="d-flex flex-md-row p-1 p-md-3 gap-3 w-100 vh-100">
+<body class="d-flex flex-md-row p-1 p-md-3 gap-3 w-100 min-vh-100">
 
 <?= $navbar->render() ?>
 
@@ -82,7 +85,7 @@ $navbar = new Navbar($navItems, $currentPath);
             echo $dashboard->render();
             break;
         case 'devices':
-            $devices = new Devices();
+            $devices = new Devices($DatabaseConnection);
             echo $devices->render();
             break;
         default:
