@@ -1,5 +1,5 @@
 <?php
-require_once './Lib/Database.php';
+namespace Api;
 
 use Lib\DatabaseConnection;
 
