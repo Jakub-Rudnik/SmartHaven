@@ -1,12 +1,27 @@
 <?php
 require_once 'autoload.php';
 
+$currentPath = $_SERVER['REQUEST_URI'];
+$request = explode('/', $_SERVER['REQUEST_URI']);
+
+if ($request[1] == 'api') {
+    switch ($request[2]) {
+        case 'toggle-device':
+            require_once 'Api/toggleDevice.php';
+            break;
+        default:
+            break;
+    }
+    return;
+}
+
+
 use UI\components\Navbar;
 use UI\components\Dashboard;
 use UI\components\Devices;
+use UI\components\Groups;
 use Lib\DatabaseConnection;
 
-$currentPath = $_SERVER['REQUEST_URI'];
 $navItems = [
     [
         'url' => '/',
@@ -77,7 +92,6 @@ $navbar = new Navbar($navItems, $currentPath);
 <main class="card bg-dark-subtle flex-grow-1 p-4" style="min-height: 100%">
 
     <?php
-    $request = explode('/', $_SERVER['REQUEST_URI']);
 
     switch ($request[1]) {
         case '':
@@ -88,11 +102,16 @@ $navbar = new Navbar($navItems, $currentPath);
             $devices = new Devices($DatabaseConnection);
             echo $devices->render();
             break;
+        case 'groups':
+            $groups = new Groups($DatabaseConnection);
+            echo $groups->render();
+            break;
         default:
             echo '404';
             break;
     }
     ?>
 </main>
+<script src="/Js/ToggleDevice.js"></script>
 </body>
 </html>

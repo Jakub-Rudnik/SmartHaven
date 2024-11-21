@@ -1,5 +1,5 @@
 <?php
-require_once './Lib/Database.php';
+namespace Api;
 
 use Lib\DatabaseConnection;
 
@@ -20,9 +20,11 @@ if (isset($data['deviceId']) && isset($data['status'])) {
         $stmt = $db->execute($updateQuery, [':status' => $status, ':deviceId' => $deviceId]);
 
         // Returning the JSON response successfully
-        echo json_encode(['success' => true]);
+        echo json_encode(['success' => true, 'status' => $status]);
     } catch (Exception $e) {
-        echo json_encode(['success' => false, 'message' => 'Błąd przy aktualizacji statusu: ' . $e->getMessage()]);
+        echo json_encode([
+            'success' => false, 'status' => $status, 'message' => 'Błąd przy aktualizacji statusu: '.$e->getMessage()
+        ]);
     }
 } else {
     echo json_encode(['success' => false, 'message' => 'Nieprawidłowe dane wejściowe']);

@@ -3,16 +3,10 @@ declare(strict_types=1);
 
 namespace Services;
 
-require_once './Entity/Device.php';
-require_once './Entity/DeviceType.php';
-require_once './Services/DeviceTypeService.php';
-require_once './Lib/DatabaseConnection.php';
-
 use Entity\Device;
 use Entity\DeviceType;
 use Exception;
 use Lib\DatabaseConnection;
-use Services\DeviceTypeService;
 
 class DeviceService
 {
@@ -104,6 +98,20 @@ class DeviceService
         return $this->queryToArray($query, $params);
     }
 
+    public function getDevicesGroupedByLocations(): array
+    {
+        $devicesQuery = "
+        SELECT d.DeviceID, d.DeviceName, d.DeviceTypeID, 
+               COALESCE(d.Location, 'Brak przydzielonego pokoju') AS Location, 
+               dp.Value AS Status
+        FROM Device d
+        JOIN DeviceParameter dp ON d.DeviceID = dp.DeviceID
+        WHERE dp.ParameterID = 1
+        ORDER BY d.Location;";
+
+        return $this->queryToArray($devicesQuery, []);
+    }
+
     private function queryToArray(string $query, array $params = []): array
     {
         try {
@@ -129,4 +137,5 @@ class DeviceService
 
         return $deviceList;
     }
+
 }
