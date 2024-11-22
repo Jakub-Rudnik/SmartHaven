@@ -17,6 +17,7 @@ services:
         dockerfile: Dockerfile
     volumes:
         - ./:/var/www/html
+        - ./.htaccess:/var/www/html/.htaccess
     ports:
         - 8080:80
     depends_on:

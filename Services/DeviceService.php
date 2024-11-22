@@ -3,26 +3,24 @@ declare(strict_types=1);
 
 namespace Services;
 
-require_once './Entity/Device.php';
-require_once './Entity/DeviceType.php';
-require_once './Services/DeviceTypeService.php';
-require_once './Lib/Database.php';
-
 use Entity\Device;
 use Entity\DeviceType;
+use Exception;
 use Lib\DatabaseConnection;
-use Services\DeviceTypeService;
 
-class DeviceService {
+class DeviceService
+{
     private DatabaseConnection $db;
     private DeviceTypeService $deviceTypeService;
 
-    public function __construct(DatabaseConnection $db) {
+    public function __construct(DatabaseConnection $db)
+    {
         $this->db = $db;
         $this->deviceTypeService = new DeviceTypeService($db);
     }
 
-    public function getDevices(): array {
+    public function getDevices(): array
+    {
         $sql = "SELECT d.DeviceID, d.DeviceName, d.DeviceTypeID, d.Location 
                 FROM Device d";
         $result = $this->db->query($sql);
@@ -44,7 +42,8 @@ class DeviceService {
         return $devices;
     }
 
-    public function getDeviceById(int $id): ?Device {
+    public function getDeviceById(int $id): ?Device
+    {
         $query = 'SELECT DeviceID, DeviceName, DeviceTypeID, Location FROM Device WHERE DeviceID = :id';
         $params = [':id' => $id];
 
@@ -60,13 +59,14 @@ class DeviceService {
                 $deviceData['Location'],
                 $status
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             echo $e->getMessage();
             return null;
         }
     }
 
-    private function getDeviceStatus(int $deviceId): bool {
+    private function getDeviceStatus(int $deviceId): bool
+    {
         $query = "SELECT Value FROM DeviceParameter WHERE DeviceID = :deviceId AND ParameterID = 1"; // ParameterID = 1 oznacza Status
         $params = [':deviceId' => $deviceId];
 
@@ -76,30 +76,47 @@ class DeviceService {
                 return $result[0]['Value'] === '1';
             }
             return false; // Domyślnie, jeśli nie ma wartości, zakładamy, że urządzenie jest wyłączone
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             echo $e->getMessage();
             return false;
         }
     }
 
-    public function getDevicesByType(DeviceType $type): array {
+    public function getDevicesByType(DeviceType $type): array
+    {
         $query = 'SELECT DeviceID, DeviceName, DeviceTypeID, Location FROM Device WHERE DeviceTypeID = :typeId';
         $params = [':typeId' => $type->getId()];
 
         return $this->queryToArray($query, $params);
     }
 
-    public function getDevicesByLocation(string $location): array {
+    public function getDevicesByLocation(string $location): array
+    {
         $query = 'SELECT DeviceID, DeviceName, DeviceTypeID, Location FROM Device WHERE Location = :location';
         $params = [':location' => $location];
 
         return $this->queryToArray($query, $params);
     }
 
-    private function queryToArray(string $query, array $params = []): array {
+    public function getDevicesGroupedByLocations(): array
+    {
+        $devicesQuery = "
+        SELECT d.DeviceID, d.DeviceName, d.DeviceTypeID, 
+               COALESCE(d.Location, 'Brak przydzielonego pokoju') AS Location, 
+               dp.Value AS Status
+        FROM Device d
+        JOIN DeviceParameter dp ON d.DeviceID = dp.DeviceID
+        WHERE dp.ParameterID = 1
+        ORDER BY d.Location;";
+
+        return $this->queryToArray($devicesQuery, []);
+    }
+
+    private function queryToArray(string $query, array $params = []): array
+    {
         try {
             $devicesData = $this->db->query($query, $params);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             echo $e->getMessage();
             return [];
         }
@@ -108,7 +125,7 @@ class DeviceService {
         foreach ($devicesData as $deviceData) {
             $deviceType = $this->deviceTypeService->getDeviceTypeById($deviceData['DeviceTypeID']);
             $status = $this->getDeviceStatus($deviceData['DeviceID']);
-            
+
             $deviceList[] = new Device(
                 $deviceData['DeviceID'],
                 $deviceData['DeviceName'],
@@ -120,4 +137,5 @@ class DeviceService {
 
         return $deviceList;
     }
+
 }

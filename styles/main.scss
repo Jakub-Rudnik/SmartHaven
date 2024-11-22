@@ -1,0 +1,83 @@
+$primary-purple: #a71aae;
+$primary-blue: #233cb8;
+$primary-gradient: linear-gradient(
+  $primary-blue 0%,
+  $primary-purple 100%
+);
+$primary: $primary-blue;
+
+.bg-primary {
+  background: linear-gradient(0deg, $primary-blue 0%, $primary-purple 100%) !important;
+}
+
+.nav-item .active {
+    background: $primary-gradient !important;
+}
+
+.btn-primary {
+    background: $primary-gradient !important;
+    border: none !important;
+}
+
+@font-face {
+  font-family: "Poppins";
+  font-weight: 400;
+  src: url("../Public/Fonts/Poppins/Poppins-Regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Poppins";
+  font-weight: 700;
+  src: url("/Public/Fonts/Poppins/Poppins-Bold.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Poppins";
+  font-weight: 300;
+  src: url("/Public/Fonts/Poppins/Poppins-Light.ttf") format("truetype");
+}
+
+body {
+    font-family: "Poppins", 'sans-serif' !important;
+}
+
+.navbar {
+  width: min-content;
+}
+
+
+.devices {
+ grid-template-columns: 1fr;
+}
+
+
+
+@import "../node_modules/bootstrap/scss/bootstrap.scss";
+
+.device-card {
+  background: linear-gradient(90deg, $dark-bg-subtle-dark 0%, $gray-800 100%);
+  border: 1px solid $gray-700;
+
+  &:hover {
+    cursor: pointer;
+    background: $gray-800
+  }
+}
+
+@include media-breakpoint-up(md) {
+  .devices {
+      grid-template-columns: 1fr 1fr;
+  }
+}
+
+@include media-breakpoint-up(xl) {
+  .navbar {
+    width: 280px !important;
+  }
+
+  .devices {
+      grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+

@@ -1,0 +1,15 @@
+{
+  "name": "smarthaven",
+  "version": "1.0.0",
+  "description": "aplikacja ułatwia zarządzanie inteligentnym domem, pozwalając na zdalne sterowanie oświetleniem, roletami, bramami czy alarmami z dowolnego miejsca.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bootstrap": "^5.3.3"
+  }
+}
