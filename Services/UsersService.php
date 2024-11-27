@@ -19,9 +19,9 @@ class UsersService {
      */
     public function registerUser(string $username, string $email, string $password): string {
         // Sprawdzenie, czy nazwa użytkownika lub email już istnieją
-        $query = 'SELECT * FROM Users WHERE Username = :username OR Email = :email';
+        $query = 'SELECT * FROM Users WHERE Email = :email';
         $params = [
-            ':username' => $username,
+            
             ':email' => $email
         ];
 
@@ -54,16 +54,16 @@ class UsersService {
     }
 
     /**
-     * Logowanie użytkownika
-     * @param string $username
+     * Logowanie użytkownika na podstawie emailu
+     * @param string $email
      * @param string $password
      * @return string
      */
-    public function loginUser(string $username, string $password): string {
+    public function loginUserByEmail(string $email, string $password): string {
         // Sprawdzenie, czy użytkownik istnieje
-        $query = 'SELECT * FROM Users WHERE Username = :username';
+        $query = 'SELECT * FROM Users WHERE Email = :email';
         $params = [
-            ':username' => $username
+            ':email' => $email
         ];
 
         try {
@@ -72,38 +72,42 @@ class UsersService {
             // Weryfikacja hasła
             if (password_verify($password, $user['PasswordHash'])) {
                 // Logowanie powiodło się, można ustawić sesję użytkownika
-                session_start();
+                
                 $_SESSION['userID'] = $user['UserID'];
                 $_SESSION['username'] = $user['Username'];
+                $_SESSION['email'] = $user['Email'];
                 return 'Login successful!';
             } else {
-                return 'Invalid username or password!';
+                return 'Invalid email or password!';
             }
         } catch (Exception $e) {
-            return 'Invalid username or password!';
+            return 'Invalid email or password!';
         }
     }
-
 
     /* Wylogowywanie użytkownika
      * @return string
      */
-    public function logoutUser(): string {
-        session_start();
-        // Usuwanie wszystkich zmiennych sesji
-        $_SESSION = [];
-        // Usunięcie ciasteczka sesji
-        if (ini_get('session.use_cookies')) {
+    public function logoutUser()
+{
+    
+    if (session_status() == PHP_SESSION_ACTIVE) {
+       
+        $_SESSION = array();
+
+      
+        if (ini_get("session.use_cookies")) {
             $params = session_get_cookie_params();
             setcookie(session_name(), '', time() - 42000,
-                $params['path'], $params['domain'],
-                $params['secure'], $params['httponly']
+                $params["path"], $params["domain"],
+                $params["secure"], $params["httponly"]
             );
         }
-        // Zniszczenie sesji
+
+        // Destroy the session
         session_destroy();
-        return 'Logout successful!';
     }
+}
 
     /**
      * Sprawdzenie aktywności użytkownika
@@ -124,5 +128,3 @@ class UsersService {
         }
     }
 }
-
-?>

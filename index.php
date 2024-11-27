@@ -2,6 +2,7 @@
 require_once './Lib/Database.php';
 require_once './Services/DeviceService.php';
 require_once './Services/DeviceTypeService.php';
+require_once './Services/UsersService.php';
 
 session_start();
 
@@ -12,16 +13,24 @@ if (!isset($_SESSION['userID'])) {
 }
 
 $db = new DatabaseConnection();
+$usersService = new UsersService($db);
+
+// Obsługa wylogowania
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout'])) {
+    $usersService->logoutUser();
+    header('Location: login.php');
+    exit();
+}
 
 $devicesService = new DeviceService($db);
 $devicesTypeService = new DeviceTypeService($db);
 
 $devices = $devicesService->getDevices();
 
-echo '<h2>Welcome, ' . htmlspecialchars($_SESSION['username']) . '!</h2>';
+echo '<h2>Welcome, ' . htmlspecialchars($_SESSION['username'] ?? '') . '!</h2>';
 
 // Przycisk wylogowania
-echo '<form method="POST" action="login.php">';
+echo '<form method="POST">';
 echo '<input type="submit" name="logout" value="Wyloguj">';
 echo '</form>';
 

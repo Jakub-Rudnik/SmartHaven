@@ -33,7 +33,7 @@ DROP TABLE IF EXISTS `Users`;
 
 CREATE TABLE `Users` (
   `UserID` int NOT NULL AUTO_INCREMENT,
-  `Username` varchar(100) NOT NULL UNIQUE,
+  `Username` varchar(100) NOT NULL,
   `Email` varchar(255) NOT NULL UNIQUE,
   `PasswordHash` varchar(255) NOT NULL,
   `CreatedAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
