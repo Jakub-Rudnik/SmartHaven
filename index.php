@@ -20,6 +20,7 @@ use UI\components\Navbar;
 use UI\components\Dashboard;
 use UI\components\Devices;
 use UI\components\Groups;
+use UI\components\Schedule;
 use Lib\DatabaseConnection;
 
 $navItems = [
@@ -105,6 +106,10 @@ $navbar = new Navbar($navItems, $currentPath);
         case 'groups':
             $groups = new Groups($DatabaseConnection);
             echo $groups->render();
+            break;
+        case 'schedules':
+            $schedules = new Schedule($DatabaseConnection);
+            echo $schedules->render();
             break;
         default:
             echo '404';
