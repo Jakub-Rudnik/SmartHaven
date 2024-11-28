@@ -31,12 +31,16 @@ body {
   font-family: "Poppins", "sans-serif" !important;
 }
 
-.navbar {
-  width: min-content;
-}
-
 .devices {
   grid-template-columns: 1fr;
+}
+
+.dashboard-svg {
+  box-shadow: 0 5px 45px 0 rgba(255, 255, 255, 0.05);
+}
+
+.hero {
+  padding: 50px 0;
 }
 
 /*!
@@ -11898,10 +11902,12 @@ textarea.form-control-lg {
     grid-template-columns: 1fr 1fr;
   }
 }
-@media (min-width: 1200px) {
-  .navbar {
-    width: 280px !important;
+@media (min-width: 992px) {
+  .hero {
+    padding: 100px 0;
   }
+}
+@media (min-width: 1200px) {
   .devices {
     grid-template-columns: 1fr 1fr 1fr;
   }

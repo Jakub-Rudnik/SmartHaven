@@ -1,8 +1,8 @@
 $primary-purple: #a71aae;
 $primary-blue: #233cb8;
 $primary-gradient: linear-gradient(
-  $primary-blue 0%,
-  $primary-purple 100%
+                $primary-blue 0%,
+                $primary-purple 100%
 );
 $primary: $primary-blue;
 
@@ -11,12 +11,12 @@ $primary: $primary-blue;
 }
 
 .nav-item .active {
-    background: $primary-gradient !important;
+  background: $primary-gradient !important;
 }
 
 .btn-primary {
-    background: $primary-gradient !important;
-    border: none !important;
+  background: $primary-gradient !important;
+  border: none !important;
 }
 
 @font-face {
@@ -38,19 +38,20 @@ $primary: $primary-blue;
 }
 
 body {
-    font-family: "Poppins", 'sans-serif' !important;
+  font-family: "Poppins", 'sans-serif' !important;
 }
-
-.navbar {
-  width: min-content;
-}
-
 
 .devices {
- grid-template-columns: 1fr;
+  grid-template-columns: 1fr;
 }
 
+.dashboard-svg {
+  box-shadow: 0 5px 45px 0 rgba(255, 255, 255, 0.05);
+}
 
+.hero {
+  padding: 50px 0;
+}
 
 @import "../node_modules/bootstrap/scss/bootstrap.scss";
 
@@ -66,17 +67,19 @@ body {
 
 @include media-breakpoint-up(md) {
   .devices {
-      grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@include media-breakpoint-up(lg) {
+  .hero {
+    padding: 100px 0;
   }
 }
 
 @include media-breakpoint-up(xl) {
-  .navbar {
-    width: 280px !important;
-  }
-
   .devices {
-      grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
   }
 }
 
