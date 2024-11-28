@@ -1,0 +1,1 @@
+2024-11-28 15:48:07 - Device: klimatyzacja1 (ID: 1), Parameter: Temperatura changed from '75' to '80'

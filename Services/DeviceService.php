@@ -119,8 +119,54 @@ class DeviceService
     }
 
 
-
+    public function updateDeviceParameter(int $deviceId, int $parameterId, string $newValue): void
+    {
+        $query = "SELECT Value FROM DeviceParameter WHERE DeviceID = :deviceId AND ParameterID = :parameterId";
+        $params = [
+            ':deviceId' => $deviceId,
+            ':parameterId' => $parameterId
+        ];
+        
+        $currentValues = $this->db->query($query, $params);
+        if (!empty($currentValues)) {
+            $oldValue = $currentValues[0]['Value'];
+    
+            // Log changes only if the value changes
+            if ($oldValue !== $newValue) {
+                // Update the parameter value
+                $updateQuery = "UPDATE DeviceParameter SET Value = :newValue WHERE DeviceID = :deviceId AND ParameterID = :parameterId";
+                $updateParams = [
+                    ':newValue' => $newValue,
+                    ':deviceId' => $deviceId,
+                    ':parameterId' => $parameterId
+                ];
+                $this->db->query($updateQuery, $updateParams);
+    
+                // Log the change
+                $parameterName = $this->getParameterNameById($parameterId);
+                $this->logParameterChange($deviceId, $parameterName, $oldValue, $newValue);
+            }
+        }
+    }
+    
+    private function logParameterChange(int $deviceId, string $parameterName, string $oldValue, string $newValue): void
+    {
+        $deviceName = $this->getDeviceById($deviceId)->getName();
+        $timestamp = date('Y-m-d H:i:s');
+        $logEntry = "$timestamp - Device: $deviceName (ID: $deviceId), Parameter: $parameterName changed from '$oldValue' to '$newValue'\n";
    
+        file_put_contents('parameter_changes_log.txt', $logEntry, FILE_APPEND);
+    }
+    
+    private function getParameterNameById(int $parameterId): string
+{
+    $query = "SELECT Name FROM Parameter WHERE ParameterID = :parameterId";
+    $params = [':parameterId' => $parameterId];
+
+    $result = $this->db->query($query, $params);
+    return $result[0]['Name'] ?? 'Unknown';
+}
+
 
     public function getDevicesByType(DeviceType $type): array
     {

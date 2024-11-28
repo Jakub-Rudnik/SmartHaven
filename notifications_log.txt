@@ -1,1 +1,12 @@
 2024-11-28 15:37:56 - Urządzenie klimatyzacja1 (ID: 1) zmieniło status na ON
+2024-11-28 15:43:36 - Urządzenie klimatyzacja1 (ID: 1) zmieniło status na ON
+2024-11-28 15:44:04 - Urządzenie klimatyzacja1 (ID: 1) zmieniło status na ON
+2024-11-28 15:45:02 - Urządzenie klimatyzacja1 (ID: 1) zmieniło status na ON
+2024-11-28 15:45:59 - Urządzenie klimatyzacja1 (ID: 1) zmieniło status na ON
+2024-11-28 15:46:18 - Urządzenie klimatyzacja1 (ID: 1) zmieniło status na ON
+2024-11-28 15:46:27 - Urządzenie klimatyzacja1 (ID: 1) zmieniło status na ON
+2024-11-28 15:46:50 - Urządzenie klimatyzacja1 (ID: 1) zmieniło status na ON
+2024-11-28 15:46:59 - Urządzenie klimatyzacja1 (ID: 1) zmieniło status na ON
+2024-11-28 15:47:33 - Urządzenie klimatyzacja1 (ID: 1) zmieniło status na ON
+2024-11-28 15:47:45 - Urządzenie klimatyzacja1 (ID: 1) zmieniło status na ON
+2024-11-28 15:48:07 - Urządzenie klimatyzacja1 (ID: 1) zmieniło status na ON

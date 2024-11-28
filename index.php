@@ -65,7 +65,12 @@ $DatabaseConnection = new DatabaseConnection();
 $navbar = new Navbar($navItems, $currentPath);
 $deviceService = new DeviceService($DatabaseConnection);
 
+//Update a parameter for a specific device
+$deviceId = 1; // Example device ID
+$parameterId = 2; // Example parameter ID
+$newValue = '80'; // Example new value
 
+$deviceService->updateDeviceParameter($deviceId, $parameterId, $newValue);
 
 $deviceId = 1; // ID of the device
 $newState = '1'; // New state as a string '1' or '0'
