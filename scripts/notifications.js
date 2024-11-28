@@ -1,6 +1,4 @@
-// scripts/notifications.js
 
-// Function to fetch notifications
 function fetchNotifications() {
     fetch('./getNotification.php')
         .then(response => response.json())
@@ -20,6 +18,5 @@ function fetchNotifications() {
         .catch(error => console.error('Error fetching notifications:', error));
 }
 
-// Fetch notifications every 5 seconds
 setInterval(fetchNotifications, 5000);
 fetchNotifications(); // Initial fetch

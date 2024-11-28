@@ -74,7 +74,7 @@ class DeviceService
         }
     }
 
-    private function getDeviceStatus(int $deviceId): bool
+    public function getDeviceStatus(int $deviceId): bool
     {
         $query = "SELECT Value FROM DeviceParameter WHERE DeviceID = :deviceId AND ParameterID = 1"; // ParameterID = 1 oznacza Status
         $params = [':deviceId' => $deviceId];
@@ -93,12 +93,9 @@ class DeviceService
 
     public function updateDeviceStatus(int $deviceId, string $newState)
     {
-        // Get the current status
         $currentStatus = $this->getDeviceStatus($deviceId);
 
-        // Check if the new status is different from the current status
         if ($currentStatus !== ($newState === '1')) {
-            // Update the device status in the DeviceParameter table
             $updateQuery = "UPDATE DeviceParameter SET Value = :newState WHERE DeviceID = :deviceId AND ParameterID = 1"; // ParameterID = 1 means 'Status'
             $updateParams = [
                 ':newState' => $newState,
@@ -106,7 +103,6 @@ class DeviceService
             ];
             $this->db->query($updateQuery, $updateParams);
 
-            // Insert new notification into the Notifications table
             $insertQuery = "INSERT INTO Notifications (DeviceID, NewState) VALUES (:deviceId, :newState)";
             $insertParams = [
                 ':deviceId' => $deviceId,
@@ -114,9 +110,16 @@ class DeviceService
             ];
             $this->db->query($insertQuery, $insertParams);
         }
+
+        $deviceName = $this->getDeviceById($deviceId)->getName();
+        $stateText = $newState === '1' ? 'ON' : 'OFF';
+        $timestamp = date('Y-m-d H:i:s');
+        $logEntry = "$timestamp - Urządzenie $deviceName (ID: $deviceId) zmieniło status na $stateText\n";
+        file_put_contents('notifications_log.txt', $logEntry, FILE_APPEND);
     }
 
-    
+
+
    
 
     public function getDevicesByType(DeviceType $type): array

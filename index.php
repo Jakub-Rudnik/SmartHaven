@@ -65,7 +65,8 @@ $DatabaseConnection = new DatabaseConnection();
 $navbar = new Navbar($navItems, $currentPath);
 $deviceService = new DeviceService($DatabaseConnection);
 
-// Assume you have a mechanism to detect status change, e.g., form submission or API call
+
+
 $deviceId = 1; // ID of the device
 $newState = '1'; // New state as a string '1' or '0'
 

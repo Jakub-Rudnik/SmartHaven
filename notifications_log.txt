@@ -1,0 +1,1 @@
+2024-11-28 15:37:56 - Urządzenie klimatyzacja1 (ID: 1) zmieniło status na ON
