@@ -4,6 +4,14 @@ require_once 'autoload.php';
 $currentPath = $_SERVER['REQUEST_URI'];
 $request = explode('/', $_SERVER['REQUEST_URI']);
 
+use UI\components\LandingPage;
+use UI\components\Navbar;
+use UI\components\Dashboard;
+use UI\components\Devices;
+use UI\components\Groups;
+use Lib\DatabaseConnection;
+
+
 if ($request[1] == 'api') {
     switch ($request[2]) {
         case 'toggle-device':
@@ -15,16 +23,12 @@ if ($request[1] == 'api') {
     return;
 }
 
-
-use UI\components\Navbar;
-use UI\components\Dashboard;
-use UI\components\Devices;
-use UI\components\Groups;
-use Lib\DatabaseConnection;
+$isApp = false;
+if ($request[1] == 'app') $isApp = true;
 
 $navItems = [
     [
-        'url' => '/',
+        'url' => '/app',
         'text' => 'Tablica',
         'icon' => '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M6.5 10.9949V14.4999C6.5 14.6325 6.44732 14.7597 6.35355 14.8535C6.25979 14.9472 6.13261 14.9999 6 14.9999H2C1.86739 14.9999 1.74022 14.9472 1.64645 14.8535C1.55268 14.7597 1.5 14.6325 1.5 14.4999V7.49992C1.49988 7.43421 1.51272 7.36913 1.53777 7.30839C1.56282 7.24764 1.5996 7.19244 1.646 7.14592L7.646 1.14592C7.69245 1.09935 7.74762 1.06241 7.80837 1.0372C7.86911 1.012 7.93423 0.999023 8 0.999023C8.06577 0.999023 8.13089 1.012 8.19164 1.0372C8.25238 1.06241 8.30756 1.09935 8.354 1.14592L14.354 7.14592C14.4004 7.19244 14.4372 7.24764 14.4622 7.30839C14.4873 7.36913 14.5001 7.43421 14.5 7.49992V14.4999C14.5 14.6325 14.4473 14.7597 14.3536 14.8535C14.2598 14.9472 14.1326 14.9999 14 14.9999H10C9.86739 14.9999 9.74022 14.9472 9.64645 14.8535C9.55268 14.7597 9.5 14.6325 9.5 14.4999V10.9999C9.5 10.7499 9.25 10.4999 9 10.4999H7C6.75 10.4999 6.5 10.7499 6.5 10.9949Z" fill="white"/>
@@ -33,7 +37,7 @@ $navItems = [
 '
     ],
     [
-        'url' => '/devices',
+        'url' => '/app/devices',
         'text' => 'Urządzenia',
         'icon' => '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path fill-rule="evenodd" clip-rule="evenodd" d="M9.82782 3H13.8098C14.0877 2.99997 14.3626 3.05787 14.6169 3.16999C14.8712 3.28212 15.0994 3.44601 15.2868 3.65122C15.4742 3.85643 15.6168 4.09845 15.7055 4.36184C15.7942 4.62524 15.827 4.90422 15.8018 5.181L15.1648 12.181C15.1197 12.6779 14.8904 13.14 14.522 13.4766C14.1537 13.8131 13.6728 13.9998 13.1738 14H2.82582C2.32686 13.9998 1.84599 13.8131 1.47762 13.4766C1.10925 13.14 0.87998 12.6779 0.834824 12.181L0.197824 5.181C0.15521 4.71778 0.276218 4.25427 0.539824 3.871L0.499824 3C0.499824 2.46957 0.710538 1.96086 1.08561 1.58579C1.46068 1.21071 1.96939 1 2.49982 1H6.17182C6.70221 1.00011 7.21084 1.2109 7.58582 1.586L8.41382 2.414C8.78881 2.7891 9.29743 2.99989 9.82782 3ZM1.50582 3.12C1.71982 3.042 1.94982 3 2.18982 3H7.58582L6.87882 2.293C6.69133 2.10545 6.43702 2.00006 6.17182 2H2.49982C2.23787 1.99995 1.98635 2.1027 1.79935 2.28614C1.61235 2.46959 1.5048 2.71909 1.49982 2.981L1.50582 3.12Z" fill="white"/>
@@ -41,7 +45,7 @@ $navItems = [
 '
     ],
     [
-        'url' => '/groups',
+        'url' => '/app/groups',
         'text' => 'Grupy urządzeń',
         'icon' => '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g clip-path="url(#clip0_5495_1743)">
@@ -56,7 +60,7 @@ $navItems = [
 '
     ],
     [
-        'url' => '/schedules',
+        'url' => '/app/schedules',
         'text' => 'Harmonogramy',
         'icon' => '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g clip-path="url(#clip0_5495_1747)">
@@ -72,7 +76,6 @@ $navItems = [
     ]
 ];
 
-
 $DatabaseConnection = new DatabaseConnection();
 $navbar = new Navbar($navItems, $currentPath);
 ?>
@@ -84,32 +87,48 @@ $navbar = new Navbar($navItems, $currentPath);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartHaven</title>
     <link rel="stylesheet" href="/styles/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"></script>
 </head>
 <body class="d-flex flex-md-row p-1 p-md-3 gap-3 w-100 min-vh-100">
 
-<?= $navbar->render() ?>
+<?= $isApp ? $navbar->render() : '' ?>
 
 <main class="card bg-dark-subtle flex-grow-1 p-4" style="min-height: 100%">
 
     <?php
 
-    switch ($request[1]) {
-        case '':
-            $dashboard = new Dashboard();
-            echo $dashboard->render();
-            break;
-        case 'devices':
-            $devices = new Devices($DatabaseConnection);
-            echo $devices->render();
-            break;
-        case 'groups':
-            $groups = new Groups($DatabaseConnection);
-            echo $groups->render();
-            break;
-        default:
-            echo '404';
-            break;
+    if ($isApp) {
+        switch ($request[2] ?? '') {
+            case '':
+                $dashboard = new Dashboard();
+                echo $dashboard->render();
+                break;
+            case 'devices':
+                $devices = new Devices($DatabaseConnection);
+                echo $devices->render();
+                break;
+            case 'groups':
+                $groups = new Groups($DatabaseConnection);
+                echo $groups->render();
+                break;
+            default:
+                echo '404';
+                break;
+        }
+    } else {
+        switch ($request[1]) {
+            case '':
+                $landingPage = new LandingPage();
+                echo $landingPage->render();
+                break;
+            default:
+                echo '404';
+                break;
+        }
     }
+
     ?>
 </main>
 <script src="/Js/ToggleDevice.js"></script>
