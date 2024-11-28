@@ -110,4 +110,14 @@ class DeviceTypeService
         }
         return $devicesWithoutLocation;
     }
+    public function assignDeviceToRoom($pdo, $deviceID, $location) {
+        try {
+            $stmt = $pdo->prepare("UPDATE Device SET Location = :location WHERE DeviceID = :deviceID");
+            $stmt->execute(['location' => $location, 'deviceID' => $deviceID]);
+    
+            echo "Device $deviceID successfully assigned to $location.";
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+        }
+    }
 }
