@@ -27,7 +27,7 @@ class Navbar implements UIElement
             $isCurrent = $this->currentPath == $item['url'] ? "active" : "btn btn-dark";
 
             $html .= "<li class='nav-item'>\n";
-            $html .= "    <a class='nav-link text-white d-flex align-items-center gap-2 ".$isCurrent."' href='".$item['url']."'>\n";
+            $html .= "    <a class='nav-link text-white d-flex align-items-center gap-2 " . $isCurrent . "' href='" . $item['url'] . "'>\n";
             $html .= $item['icon'];
             $html .= "        <span class='d-none d-xl-block'>\n";
             $html .= $item['text'];
@@ -39,7 +39,7 @@ class Navbar implements UIElement
         $html .= '</ul></nav>';
 
         //DESKTOP MENU
-        $html .= '<div class="card d-none d-md-flex flex-column justify-content-between align-items-center p-4 min-h-100 navbar bg-dark-subtle">
+        $html .= '<div class="card d-none d-md-flex flex-column justify-content-between align-items-center p-4 min-h-100 bg-dark-subtle">
                     <div class="d-flex flex-column justify-content-between align-items-center w-100 gap-4">
                         <!--Symbol logo-->
                             <svg class="d-xl-none" width="46" height="37" viewBox="0 0 46 37" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -66,7 +66,7 @@ class Navbar implements UIElement
         foreach ($this->navItems as $item):
             $isCurrent = $this->currentPath == $item['url'] ? "active" : "btn btn-dark";
             $html .= "<li class='nav-item'>";
-            $html .= "<a class='nav-link text-white d-flex align-items-center gap-2 ".$isCurrent."' href='".$item['url']."'>";
+            $html .= "<a class='nav-link text-white d-flex align-items-center gap-2 " . $isCurrent . "' href='" . $item['url'] . "'>";
             $html .= $item['icon'];
             $html .= "<span class='d-none d-xl-block'>";
             $html .= $item['text'];
