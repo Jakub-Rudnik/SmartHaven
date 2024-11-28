@@ -127,4 +127,17 @@ class UsersService {
             return false;
         }
     }
+
+   /**
+     * Sprawdzenie, czy jest aktywna sesja
+     * @return bool
+     */
+    public function isSessionActive(): bool {
+        // Sprawdzenie, czy sesja została już uruchomiona
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            return true;
+        }
+        return false;
+    }
+
 }
