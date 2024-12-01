@@ -13,7 +13,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const timeValid = startTimeValue && endTimeValue && startTimeValue < endTimeValue;
         const daysSelected = everydayCheckbox.checked || Array.from(weekdaysCheckboxes).some(cb => cb.checked);
 
-        // Walidacja czasu
         if (!timeValid && startTimeValue && endTimeValue) {
             console.warn('Czas włączenia musi być wcześniejszy niż czas wyłączenia!');
         }

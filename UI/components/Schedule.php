@@ -26,7 +26,7 @@ class Schedule implements UIElement
 
         if (count($this->devices) > 0) {
             $html .= "
-            <form action='API/saveSchedule.php' method='post'>
+            <form action='/api/save-schedule' method='post'>
                 <div class='form-group'>
                     <label for='device-select'>Wybierz urządzenie:</label>
                     <select id='device-select' name='device_id'>
@@ -51,7 +51,7 @@ class Schedule implements UIElement
                 </div>
                 <div class='form-group'>
                     <label>Wybierz dni cyklu:</label><br>
-                    <label><input type='checkbox' id='everyday' name='cycle_days[]' value='codzien'> Codziennie</label><br>
+                    <label><input type='checkbox' id='everyday' name='cycle_days[]' value='codziennie'> Codziennie</label><br>
                     <label><input type='checkbox' name='cycle_days[]' value='poniedziałek' class='weekdays'> Poniedziałek</label><br>
                     <label><input type='checkbox' name='cycle_days[]' value='wtorek' class='weekdays'> Wtorek</label><br>
                     <label><input type='checkbox' name='cycle_days[]' value='środa' class='weekdays'> Środa</label><br>
@@ -66,7 +66,6 @@ class Schedule implements UIElement
             $html .= "<p>Brak urządzeń do wyświetlenia.</p>";
         }
 
-        // Dodanie obsługi walidacji czasu
         $html .= "
             <script src='js/ScheduleValidation.js'></script>
         ";
