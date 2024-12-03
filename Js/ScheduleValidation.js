@@ -26,6 +26,11 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    function checkEverydayStatus() {
+        const allChecked = Array.from(weekdaysCheckboxes).every(cb => cb.checked);
+        everydayCheckbox.checked = allChecked; // Automatyczne zaznaczenie „Codziennie”
+    }
+
     everydayCheckbox.addEventListener('change', function () {
         toggleAllWeekdays(everydayCheckbox.checked);
         validateForm();
@@ -33,9 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     weekdaysCheckboxes.forEach(cb => {
         cb.addEventListener('change', function () {
-            if (!this.checked) {
-                everydayCheckbox.checked = false;
-            }
+            checkEverydayStatus(); // Sprawdź, czy wszystkie dni są zaznaczone
             validateForm();
         });
     });
