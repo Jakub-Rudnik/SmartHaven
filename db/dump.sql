@@ -12,6 +12,7 @@ START TRANSACTION;
 SET time_zone = "+00:00";
 
 -- Usunięcie istniejących tabel
+DROP TABLE IF EXISTS `UserDevice`;
 DROP TABLE IF EXISTS `SimulationData`;
 DROP TABLE IF EXISTS `DeviceParameter`;
 DROP TABLE IF EXISTS `DeviceTypeParameter`;
@@ -28,7 +29,7 @@ DROP TABLE IF EXISTS `Users`;
 -- --------------------------------------------------------
 
 --
--- Struktura tabeli dla tabeli `Parameter`
+-- Struktura tabeli dla tabeli `Users`
 --
 
 CREATE TABLE `Users` (
@@ -42,6 +43,18 @@ CREATE TABLE `Users` (
   `IsActive` boolean DEFAULT 1,
   PRIMARY KEY (`UserID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Wstawienie użytkowników
+INSERT INTO `Users` (`Username`, `Email`, `PasswordHash`, `Role`, `IsActive`) VALUES
+('admin', 'admin@example.com', 'hashedpassword1', 'admin', 1),
+('user1', 'user1@example.com', 'hashedpassword2', 'user', 1),
+('user2', 'user2@example.com', 'hashedpassword3', 'user', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabeli dla tabeli `Parameter`
+--
 
 CREATE TABLE `Parameter` (
   `ParameterID` int NOT NULL AUTO_INCREMENT,
@@ -153,6 +166,21 @@ CREATE TABLE `Schedule` (
   CONSTRAINT `Schedule_ibfk_2` FOREIGN KEY (`ParameterID`) REFERENCES `Parameter` (`ParameterID`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- --------------------------------------------------------
+
+--
+-- Struktura tabeli dla tabeli `UserDevice`
+--
+
+CREATE TABLE `UserDevice` (
+  `UserID` int NOT NULL,
+  `DeviceID` int NOT NULL,
+  PRIMARY KEY (`UserID`, `DeviceID`),
+  KEY `DeviceID` (`DeviceID`),
+  CONSTRAINT `UserDevice_ibfk_1` FOREIGN KEY (`UserID`) REFERENCES `Users` (`UserID`) ON DELETE CASCADE,
+  CONSTRAINT `UserDevice_ibfk_2` FOREIGN KEY (`DeviceID`) REFERENCES `Device` (`DeviceID`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 --
 -- Dodanie przykładowych danych
 --
@@ -244,6 +272,17 @@ INSERT INTO `SimulationData` (`DeviceID`, `ParameterID`, `SimulatedValue`, `Time
 (8, 1, '1', NOW()),
 (8, 3, '100', NOW()),
 (8, 5, 'Biały', NOW());
+
+-- Wstawienie przypisań urządzeń do użytkowników
+INSERT INTO `UserDevice` (`UserID`, `DeviceID`) VALUES
+(2, 1), -- user1 ma urządzenie 1
+(2, 2), -- user1 ma urządzenie 2
+(3, 3), -- user2 ma urządzenie 3
+(3, 4), -- user2 ma urządzenie 4
+(2, 5), -- user1 ma urządzenie 5
+(2, 7), -- user1 ma urządzenie 7
+(3, 6), -- user2 ma urządzenie 6
+(2, 8); -- user1 ma urządzenie 8
 
 COMMIT;
 

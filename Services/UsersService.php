@@ -76,6 +76,7 @@ class UsersService {
                 $_SESSION['userID'] = $user['UserID'];
                 $_SESSION['username'] = $user['Username'];
                 $_SESSION['email'] = $user['Email'];
+                
                 return 'Login successful!';
             } else {
                 return 'Invalid email or password!';
