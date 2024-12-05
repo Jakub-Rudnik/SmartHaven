@@ -18,6 +18,9 @@ if ($request[1] == 'api') {
         case 'toggle-device':
             require_once 'Api/toggleDevice.php';
             break;
+        case 'save-schedule':
+            require_once 'Api/saveSchedule.php';
+            break;
         default:
             break;
     }
