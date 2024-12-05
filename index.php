@@ -91,11 +91,12 @@ $navbar = new Navbar($navItems, $currentPath);
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
             crossorigin="anonymous"></script>
 </head>
-<body class="d-flex flex-md-row p-1 p-md-3 gap-3 w-100 min-vh-100">
+<body class="d-flex flex-md-row p-1 p-md-3 gap-3 w-100 vh-100 overflow-hidden">
 
 <?= $isApp ? $navbar->render() : '' ?>
 
-<main class="card bg-dark-subtle flex-grow-1 p-4" style="min-height: 100%">
+<main class="card bg-dark-subtle flex-grow-1 <?= $isApp ? 'p-4' : 'pb-4 px-4' ?> overflow-y-auto"
+      style="max-height: 100vh">
 
     <?php
 

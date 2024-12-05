@@ -53,7 +53,20 @@ body {
   padding: 50px 0;
 }
 
+
 @import "../node_modules/bootstrap/scss/bootstrap.scss";
+
+.backdrop-blur {
+  background-color: rgba($dark-bg-subtle-dark, .95);
+}
+
+@supports ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
+  .backdrop-blur {
+    background-color: rgba($dark-bg-subtle-dark, .75);
+    -webkit-backdrop-filter: blur(2em);
+    backdrop-filter: blur(2em);
+  }
+}
 
 .device-card {
   background: linear-gradient(90deg, $dark-bg-subtle-dark 0%, $gray-800 100%);
@@ -65,9 +78,25 @@ body {
   }
 }
 
+.section-padding {
+  padding: 50px 0;
+}
+
+.hero-image {
+  padding-bottom: 100px;
+}
+
 @include media-breakpoint-up(md) {
   .devices {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .section-padding {
+    padding: 100px 0;
+  }
+
+  .hero-image {
+    padding-bottom: 200px;
   }
 }
 
