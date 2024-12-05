@@ -53,6 +53,12 @@ class DatabaseConnection
 
         $this->closeConnection();
     }
+
+    public function getConnection(): PDO
+    {
+        $this->openConnection();
+        return $this->pdo;
+    }
 }
 
 ?>

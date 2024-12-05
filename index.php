@@ -10,12 +10,16 @@ use UI\components\Dashboard;
 use UI\components\Devices;
 use UI\components\Groups;
 use Lib\DatabaseConnection;
+use UI\components\Schedule;
 
 
 if ($request[1] == 'api') {
     switch ($request[2]) {
         case 'toggle-device':
             require_once 'Api/toggleDevice.php';
+            break;
+        case 'save-schedule':
+            require_once 'Api/saveSchedule.php';
             break;
         default:
             break;
@@ -76,6 +80,7 @@ $navItems = [
     ]
 ];
 
+
 $DatabaseConnection = new DatabaseConnection();
 $navbar = new Navbar($navItems, $currentPath);
 ?>
@@ -113,6 +118,10 @@ $navbar = new Navbar($navItems, $currentPath);
             case 'groups':
                 $groups = new Groups($DatabaseConnection);
                 echo $groups->render();
+                break;
+            case 'schedules':
+                $schedules = new Schedule($DatabaseConnection);
+                echo $schedules->render();
                 break;
             default:
                 echo '404';

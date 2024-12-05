@@ -127,8 +127,8 @@ CREATE TABLE `SimulationData` (
 CREATE TABLE `Schedule` (
   `ScheduleID` int NOT NULL AUTO_INCREMENT,
   `DeviceID` int NOT NULL,
-  `StartTime` datetime NOT NULL,
-  `EndTime` datetime DEFAULT NULL,
+  `StartTime` TIME NOT NULL,
+  `EndTime` TIME DEFAULT NULL,
   `ParameterID` int DEFAULT NULL,
   `ParameterValue` varchar(100) DEFAULT NULL,
   `RepeatPattern` varchar(50) DEFAULT NULL, -- Informacja o powtarzaniu, np. codziennie, tygodniowo
@@ -139,6 +139,7 @@ CREATE TABLE `Schedule` (
   CONSTRAINT `Schedule_ibfk_1` FOREIGN KEY (`DeviceID`) REFERENCES `Device` (`DeviceID`) ON DELETE CASCADE,
   CONSTRAINT `Schedule_ibfk_2` FOREIGN KEY (`ParameterID`) REFERENCES `Parameter` (`ParameterID`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 
 --
 -- Dodanie przykładowych danych
@@ -209,8 +210,10 @@ INSERT INTO `DeviceParameter` (`DeviceID`, `ParameterID`, `Value`) VALUES
 (8, 5, 'Biały');  -- lampa3, Kolor
 
 -- Wstawienie harmonogramów
-INSERT INTO `Schedule` (`DeviceID`, `StartTime`, `EndTime`, `ParameterID`, `ParameterValue`, `RepeatPattern`) VALUES
-(1, '2024-10-31 08:00:00', NULL, 1, '1', 'codziennie'); -- Klimatyzacja włączana codziennie o 8:00
+-- Wstawienie harmonogramu, gdzie godzina startu to 08:00
+INSERT INTO `Schedule` (`DeviceID`, `StartTime`, `EndTime`, `ParameterID`, `ParameterValue`, `RepeatPattern`) 
+VALUES (1, '08:00:00', NULL, 1, '1', 'codziennie'); -- Klimatyzacja włączana codziennie o 8:00
+
 
 -- Wstawienie danych symulacyjnych
 INSERT INTO `SimulationData` (`DeviceID`, `ParameterID`, `SimulatedValue`, `Timestamp`) VALUES
