@@ -10,7 +10,7 @@ use UI\components\Dashboard;
 use UI\components\Devices;
 use UI\components\Groups;
 use Lib\DatabaseConnection;
-use UI\components\Schedule;
+use UI\components\AddSchedule;
 
 
 if ($request[1] == 'api') {
@@ -120,7 +120,7 @@ $navbar = new Navbar($navItems, $currentPath);
                 echo $groups->render();
                 break;
             case 'schedules':
-                $schedules = new Schedule($DatabaseConnection);
+                $schedules = new AddSchedule($DatabaseConnection);
                 echo $schedules->render();
                 break;
             default:
