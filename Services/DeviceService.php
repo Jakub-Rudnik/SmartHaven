@@ -159,13 +159,13 @@ class DeviceService
     }
     
     private function getParameterNameById(int $parameterId): string
-{
-    $query = "SELECT Name FROM Parameter WHERE ParameterID = :parameterId";
-    $params = [':parameterId' => $parameterId];
+    {
+        $query = "SELECT Name FROM Parameter WHERE ParameterID = :parameterId";
+        $params = [':parameterId' => $parameterId];
 
-    $result = $this->db->query($query, $params);
-    return $result[0]['Name'] ?? 'Unknown';
-}
+        $result = $this->db->query($query, $params);
+        return $result[0]['Name'] ?? 'Unknown';
+    }
 
 
     public function getDevicesByType(DeviceType $type): array
