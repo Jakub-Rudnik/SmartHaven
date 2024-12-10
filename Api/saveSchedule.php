@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo = $db->getConnection();
 
             $sql = "INSERT INTO Schedule (DeviceID, StartTime, EndTime, RepeatPattern, ScheduleState, ParameterID, ParameterValue) 
-                    VALUES (:deviceID, :startTime, :endTime, 'codziennie', 0, 1, 1)";
+                    VALUES (:deviceID, :startTime, :endTime, 'codziennie', 1, 1, 1)";
             $stmt = $pdo->prepare($sql);
             $stmt->bindParam(':deviceID', $deviceID, \PDO::PARAM_INT);
             $stmt->bindParam(':startTime', $startTime);
@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             foreach ($cycleDays as $day) {
                 $sql = "INSERT INTO Schedule (DeviceID, StartTime, EndTime, RepeatPattern, ScheduleState, ParameterID, ParameterValue) 
-                        VALUES (:deviceID, :startTime, :endTime, :repeatPattern, 0, 1, 1)";
+                        VALUES (:deviceID, :startTime, :endTime, :repeatPattern, 1, 1, 1)";
                 $stmt = $pdo->prepare($sql);
                 $stmt->bindParam(':deviceID', $deviceID, \PDO::PARAM_INT);
                 $stmt->bindParam(':startTime', $startTime);
