@@ -1,22 +1,49 @@
-
-function fetchNotifications() {
-    fetch('./getNotification.php')
-        .then(response => response.json())
-        .then(data => {
-            const notificationsDiv = document.getElementById('notifications');
-            notificationsDiv.innerHTML = ''; // Clear existing notifications
-
-            data.forEach(notification => {
-                const notifElement = document.createElement('div');
-                notifElement.classList.add('notification');
-
-                const stateText = notification.NewState == '1' ? 'ON' : 'OFF';
-                notifElement.textContent = `Urządzenie ${notification.DeviceName} zmieniło status na ${stateText} o ${notification.Timestamp}`;
-                notificationsDiv.appendChild(notifElement);
-            });
-        })
-        .catch(error => console.error('Error fetching notifications:', error));
-}
-
-setInterval(fetchNotifications, 5000);
-fetchNotifications(); // Initial fetch
+document.getElementById('updateDeviceBtn').addEventListener('click', function() {
+    fetch('update_state.php', {
+        method: 'POST'
+        // W razie potrzeby można przekazać w body np. deviceId, newState itp.
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'ok') {
+            // Wyświetlamy powiadomienie toast
+            Toastify({
+                text: data.message,
+                duration: 5000, // Toast zniknie po 5 sekundach
+                close: true,    // Dodanie przycisku zamykania
+                gravity: "top", // położenie toastu: top lub bottom
+                position: "right", // lewo/prawo
+                style: {
+                    background: "#4CAF50"
+                  },
+                stopOnFocus: true // pauza przy najechaniu myszką
+            }).showToast();
+        } else {
+            // Obsługa błędu
+            Toastify({
+                text: data.message,
+                duration: 5000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                style: {
+                    background: "#F44336"
+                  }
+            }).showToast();
+        }
+    })
+    .catch(error => {
+        console.error('Błąd komunikacji:', error);
+        // Ewentualny toast błędu
+        Toastify({
+            text: 'Wystąpił błąd podczas komunikacji z serwerem.',
+            duration: 5000,
+            close: true,
+            gravity: "top",
+            position: "right",
+            style: {
+                background: "#F44336"
+              }
+        }).showToast();
+    });
+});

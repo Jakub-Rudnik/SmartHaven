@@ -68,13 +68,13 @@ $deviceService = new DeviceService($DatabaseConnection);
 //Update a parameter for a specific device
 $deviceId = 1; // Example device ID
 $parameterId = 2; // Example parameter ID
-$newValue = '80'; // Example new value
+$newValue = '75'; // Example new value
 
 $deviceService->updateDeviceParameter($deviceId, $parameterId, $newValue);
+$deviceId = 1; // ID urządzenia
+$newState = '1';
 
-$deviceId = 1; // ID of the device
-$newState = '1'; // New state as a string '1' or '0'
-
+// Wywołanie aktualizacji stanu urządzenia
 $deviceService->updateDeviceStatus($deviceId, $newState);
 
 
@@ -90,6 +90,34 @@ $deviceService->updateDeviceStatus($deviceId, $newState);
     <link rel="stylesheet" href="/styles/notifications.css">
 </head>
 <body class="d-flex flex-md-row p-1 p-md-3 gap-3 w-100 min-vh-100">
+<script>
+// Tworzymy element powiadomienia
+var notification = document.createElement('div');
+notification.innerText = 'Urządzenie <?php echo $deviceId; ?> zmieniło stan na <?php echo $newState; ?> o godzinie ' + (new Date()).toLocaleTimeString();
+notification.style.position = 'fixed';
+notification.style.top = '20px';
+notification.style.right = '20px';
+notification.style.padding = '10px 20px';
+notification.style.backgroundColor = '#333';
+notification.style.color = '#fff';
+notification.style.fontFamily = 'sans-serif';
+notification.style.borderRadius = '5px';
+notification.style.boxShadow = '0 0 10px rgba(0,0,0,0.3)';
+notification.style.zIndex = '9999';
+
+// Dodajemy powiadomienie do dokumentu
+document.body.appendChild(notification);
+
+// Po 5 sekundach powiadomienie zacznie znikać
+setTimeout(function() {
+    notification.style.transition = 'opacity 0.5s ease';
+    notification.style.opacity = '0';
+    setTimeout(function() {
+        // Po kolejnych 0,5s (gdy animacja się skończy) usuwamy element
+        notification.remove();
+    }, 500);
+}, 5000);
+</script>
 <div id="notifications" class="notifications-container"></div>
 
 
@@ -106,6 +134,7 @@ $deviceService->updateDeviceStatus($deviceId, $newState);
         case '':
             $dashboard = new Dashboard();
             echo $dashboard->render();
+            
 
            
             break;
@@ -121,6 +150,9 @@ $deviceService->updateDeviceStatus($deviceId, $newState);
     }
     ?>
 </main>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
 <script src="/scripts/notifications.js"></script>
 </body>
 </html>
