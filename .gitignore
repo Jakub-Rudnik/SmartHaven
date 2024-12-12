@@ -2,3 +2,4 @@ db/*
 !db/dump.sql
 
 .idea/
+/node_modules
