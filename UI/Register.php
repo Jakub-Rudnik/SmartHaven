@@ -13,7 +13,7 @@ class Register implements UIElement
         $html = "
         <div class='w-100 h-100 d-flex align-items-center justify-content-center'>
             <div class='card p-3' style='max-width: 500px'>
-                <h2 class='mb-4'><strong>Login</strong></h2>
+                <h2 class='mb-4'><strong>Rejestracja</strong></h2>
                 <div class='alert alert-danger d-none' id='alert'></div>
                 <form method='POST' id='loginForm'>
                     <div class='mb-3'>
