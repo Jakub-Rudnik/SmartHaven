@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Services;
@@ -138,4 +139,22 @@ class DeviceService
         return $deviceList;
     }
 
+
+    public function assignDeviceToUser(int $userId, int $deviceId): bool
+    {
+        $query = "INSERT INTO UserDevice (UserID, DeviceID) VALUES (:userId, :deviceId)";
+        $params = [
+            ':userId' => $userId,
+            ':deviceId' => $deviceId
+        ];
+
+        try {
+            $this->db->executeQuery($query, $params);
+            return true;
+        } catch (Exception $e) {
+            echo 'Error assigning device to user: ' . $e->getMessage();
+            return false;
+        }
+    }
 }
+?>

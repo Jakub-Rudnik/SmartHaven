@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Entity;
 
 class Device
@@ -9,14 +11,16 @@ class Device
     private DeviceType $type;
     private ?string $room;
     private bool $state;
+    private ?string $location;
 
-    public function __construct(int $id, string $name, DeviceType $type, ?string $room, bool $state)
+    public function __construct(int $id, string $name, DeviceType $type, ?string $room, bool $state, ?string $location)
     {
         $this->id = $id;
         $this->name = $name;
         $this->type = $type;
         $this->room = $room;
         $this->state = $state;
+        $this->location = $location;
     }
 
     public function getId(): int
@@ -43,4 +47,9 @@ class Device
     {
         return $this->type;
     }
+    public function getLocation(): ?string
+    {
+        return $this->location;
+    }
 }
+?>

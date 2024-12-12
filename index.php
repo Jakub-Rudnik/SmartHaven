@@ -26,9 +26,11 @@ if ($request[1] == 'api') {
     }
     return;
 }
+echo '</table>';
 
 $isApp = false;
-if ($request[1] == 'app') $isApp = true;
+if ($request[1] == 'app')
+    $isApp = true;
 
 $navItems = [
     [
@@ -87,60 +89,63 @@ $navbar = new Navbar($navItems, $currentPath);
 
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartHaven</title>
     <link rel="stylesheet" href="/styles/main.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-            crossorigin="anonymous"></script>
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
+        </script>
 </head>
+
 <body class="d-flex flex-md-row p-1 p-md-3 gap-3 w-100 vh-100 overflow-hidden">
 
-<?= $isApp ? $navbar->render() : '' ?>
+    <?= $isApp ? $navbar->render() : '' ?>
 
-<main class="card bg-dark-subtle flex-grow-1 <?= $isApp ? 'p-4' : 'pb-4 px-4' ?> overflow-y-auto"
-      style="max-height: 100vh">
+    <main class="card bg-dark-subtle flex-grow-1 <?= $isApp ? 'p-4' : 'pb-4 px-4' ?> overflow-y-auto"
+        style="max-height: 100vh">
 
-    <?php
+        <?php
 
-    if ($isApp) {
-        switch ($request[2] ?? '') {
-            case '':
-                $dashboard = new Dashboard();
-                echo $dashboard->render();
-                break;
-            case 'devices':
-                $devices = new Devices($DatabaseConnection);
-                echo $devices->render();
-                break;
-            case 'groups':
-                $groups = new Groups($DatabaseConnection);
-                echo $groups->render();
-                break;
-            case 'schedules':
-                $schedules = new AddSchedule($DatabaseConnection);
-                echo $schedules->render();
-                break;
-            default:
-                echo '404';
-                break;
+        if ($isApp) {
+            switch ($request[2] ?? '') {
+                case '':
+                    $dashboard = new Dashboard();
+                    echo $dashboard->render();
+                    break;
+                case 'devices':
+                    $devices = new Devices($DatabaseConnection);
+                    echo $devices->render();
+                    break;
+                case 'groups':
+                    $groups = new Groups($DatabaseConnection);
+                    echo $groups->render();
+                    break;
+                case 'schedules':
+                    $schedules = new AddSchedule($DatabaseConnection);
+                    echo $schedules->render();
+                    break;
+                default:
+                    echo '404';
+                    break;
+            }
+        } else {
+            switch ($request[1]) {
+                case '':
+                    $landingPage = new LandingPage();
+                    echo $landingPage->render();
+                    break;
+                default:
+                    echo '404';
+                    break;
+            }
         }
-    } else {
-        switch ($request[1]) {
-            case '':
-                $landingPage = new LandingPage();
-                echo $landingPage->render();
-                break;
-            default:
-                echo '404';
-                break;
-        }
-    }
 
-    ?>
-</main>
-<script src="/Js/ToggleDevice.js"></script>
+        ?>
+    </main>
+    <script src="/Js/ToggleDevice.js"></script>
 </body>
+
 </html>
