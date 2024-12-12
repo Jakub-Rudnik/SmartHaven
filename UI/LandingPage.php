@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace UI\components;
+namespace UI;
 
 use Interfaces\UIElement;
 
@@ -41,7 +41,7 @@ class LandingPage implements UIElement
               </ul>
               <div class="py-3 py-lg-0 d-flex flex-column flex-lg-row align-items-start gap-3">
                     <a href="/login" class="btn bg-dark-subtle" aria-current="page">Zaloguj się</a>
-                    <a href="/login" class="btn btn-primary" aria-current="page">Zarejestruj się</a>
+                    <a href="/register" class="btn btn-primary" aria-current="page">Zarejestruj się</a>
               </div>
             </div>
           </div>

@@ -1,6 +1,6 @@
 <?php
 
-namespace UI\components;
+namespace UI;
 
 use Interfaces\UIElement;
 
@@ -76,26 +76,43 @@ class Navbar implements UIElement
         $html .= '</ul></nav></div>';
 
         $html .= '<div class="nav-item d-flex flex-column flex-xl-row gap-4 justify-content-between align-items-center w-100">
-                <a class="nav-link d-flex align-items-center gap-2 btn btn-dark p-2" href="/profile">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fill-rule="evenodd" clip-rule="evenodd"
-                      d="M3 14C3 14 2 14 2 13C2 12 3 9 8 9C13 9 14 12 14 13C14 14 13 14 13 14H3ZM8 8C8.79565 8 9.55871 7.68393 10.1213 7.12132C10.6839 6.55871 11 5.79565 11 5C11 4.20435 10.6839 3.44129 10.1213 2.87868C9.55871 2.31607 8.79565 2 8 2C7.20435 2 6.44129 2.31607 5.87868 2.87868C5.31607 3.44129 5 4.20435 5 5C5 5.79565 5.31607 6.55871 5.87868 7.12132C6.44129 7.68393 7.20435 8 8 8V8Z"
-                      fill="white"/>
-            </svg>
-            <span class="d-none d-xl-block text-start"><small>Dawid Animowski</small></span>
-        </a>
-        <a class="nav-link d-flex justify-content-center align-items-center p-2 btn btn-dark" href="/logout">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fill-rule="evenodd" clip-rule="evenodd"
-                      d="M1.5 14.9999C1.36739 14.9999 1.24021 15.0526 1.14645 15.1464C1.05268 15.2401 1 15.3673 1 15.4999C1 15.6325 1.05268 15.7597 1.14645 15.8535C1.24021 15.9472 1.36739 15.9999 1.5 15.9999H14.5C14.6326 15.9999 14.7598 15.9472 14.8536 15.8535C14.9473 15.7597 15 15.6325 15 15.4999C15 15.3673 14.9473 15.2401 14.8536 15.1464C14.7598 15.0526 14.6326 14.9999 14.5 14.9999H13V2.49992C13 2.1021 12.842 1.72057 12.5607 1.43926C12.2794 1.15796 11.8978 0.999924 11.5 0.999924H11V0.499924C11 0.428355 10.9846 0.357622 10.9549 0.292507C10.9252 0.227391 10.8819 0.16941 10.8278 0.122483C10.7738 0.0755565 10.7103 0.0407771 10.6417 0.020496C10.5731 0.000214798 10.5009 -0.0050954 10.43 0.00492428L3.43 1.00492C3.31072 1.02179 3.20154 1.08115 3.12253 1.1721C3.04353 1.26305 3.00002 1.37946 3 1.49992V14.9999H1.5ZM11 1.99992V14.9999H12V2.49992C12 2.36732 11.9473 2.24014 11.8536 2.14637C11.7598 2.0526 11.6326 1.99992 11.5 1.99992H11ZM8.5 9.99993C8.224 9.99993 8 9.55193 8 8.99993C8 8.44793 8.224 7.99993 8.5 7.99993C8.776 7.99993 9 8.44793 9 8.99993C9 9.55193 8.776 9.99993 8.5 9.99993Z"
-                      fill="white"/>
-            </svg>
-        </a>
+                        <a class="nav-link d-flex align-items-center gap-2 btn btn-dark p-2" href="/profile">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                    d="M3 14C3 14 2 14 2 13C2 12 3 9 8 9C13 9 14 12 14 13C14 14 13 14 13 14H3ZM8 8C8.79565 8 9.55871 7.68393 10.1213 7.12132C10.6839 6.55871 11 5.79565 11 5C11 4.20435 10.6839 3.44129 10.1213 2.87868C9.55871 2.31607 8.79565 2 8 2C7.20435 2 6.44129 2.31607 5.87868 2.87868C5.31607 3.44129 5 4.20435 5 5C5 5.79565 5.31607 6.55871 5.87868 7.12132C6.44129 7.68393 7.20435 8 8 8V8Z"
+                                    fill="white"/>
+                             </svg>
+                            <span class="d-none d-xl-block text-start"><small>' . $_SESSION["username"] . '</small></span>
+                        </a>
+                        <button class="nav-link d-flex justify-content-center align-items-center p-2 btn btn-dark" id="logoutButton">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                    d="M1.5 14.9999C1.36739 14.9999 1.24021 15.0526 1.14645 15.1464C1.05268 15.2401 1 15.3673 1 15.4999C1 15.6325 1.05268 15.7597 1.14645 15.8535C1.24021 15.9472 1.36739 15.9999 1.5 15.9999H14.5C14.6326 15.9999 14.7598 15.9472 14.8536 15.8535C14.9473 15.7597 15 15.6325 15 15.4999C15 15.3673 14.9473 15.2401 14.8536 15.1464C14.7598 15.0526 14.6326 14.9999 14.5 14.9999H13V2.49992C13 2.1021 12.842 1.72057 12.5607 1.43926C12.2794 1.15796 11.8978 0.999924 11.5 0.999924H11V0.499924C11 0.428355 10.9846 0.357622 10.9549 0.292507C10.9252 0.227391 10.8819 0.16941 10.8278 0.122483C10.7738 0.0755565 10.7103 0.0407771 10.6417 0.020496C10.5731 0.000214798 10.5009 -0.0050954 10.43 0.00492428L3.43 1.00492C3.31072 1.02179 3.20154 1.08115 3.12253 1.1721C3.04353 1.26305 3.00002 1.37946 3 1.49992V14.9999H1.5ZM11 1.99992V14.9999H12V2.49992C12 2.36732 11.9473 2.24014 11.8536 2.14637C11.7598 2.0526 11.6326 1.99992 11.5 1.99992H11ZM8.5 9.99993C8.224 9.99993 8 9.55193 8 8.99993C8 8.44793 8.224 7.99993 8.5 7.99993C8.776 7.99993 9 8.44793 9 8.99993C9 9.55193 8.776 9.99993 8.5 9.99993Z"
+                                    fill="white"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
-</div>
-    </div>
-    </div>';
+    <script>
+        document.getElementById("logoutButton").addEventListener("click", function() {
+            fetch("/api/logout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = "/";
+                }
+            });
+        });
+    </script>
+    ';
         return $html;
     }
 }

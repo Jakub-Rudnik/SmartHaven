@@ -1,17 +1,19 @@
 <?php
 require_once 'autoload.php';
 
+session_start();
 $currentPath = $_SERVER['REQUEST_URI'];
 $request = explode('/', $_SERVER['REQUEST_URI']);
 
-use UI\components\LandingPage;
-use UI\components\Navbar;
-use UI\components\Dashboard;
-use UI\components\Devices;
-use UI\components\Groups;
 use Lib\DatabaseConnection;
-use UI\components\AddSchedule;
-
+use UI\AddSchedule;
+use UI\Dashboard;
+use UI\Devices;
+use UI\Groups;
+use UI\LandingPage;
+use UI\Navbar;
+use UI\Login;
+use UI\Register;
 
 if ($request[1] == 'api') {
     switch ($request[2]) {
@@ -21,12 +23,20 @@ if ($request[1] == 'api') {
         case 'save-schedule':
             require_once 'Api/saveSchedule.php';
             break;
+        case 'login':
+            require_once 'Api/Login.php';
+            break;
+        case 'register':
+            require_once 'Api/Register.php';
+            break;
+        case 'logout':
+            require_once 'Api/Logout.php';
+            break;
         default:
             break;
     }
     return;
 }
-echo '</table>';
 
 $isApp = false;
 if ($request[1] == 'app')
@@ -85,6 +95,12 @@ $navItems = [
 
 $DatabaseConnection = new DatabaseConnection();
 $navbar = new Navbar($navItems, $currentPath);
+
+if ($isApp && !isset($_SESSION['userID'])) {
+    header('Location: /login');
+    exit();
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -96,56 +112,68 @@ $navbar = new Navbar($navItems, $currentPath);
     <title>SmartHaven</title>
     <link rel="stylesheet" href="/styles/main.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
-        </script>
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
+    </script>
 </head>
 
 <body class="d-flex flex-md-row p-1 p-md-3 gap-3 w-100 vh-100 overflow-hidden">
 
-    <?= $isApp ? $navbar->render() : '' ?>
+<?= $isApp ? $navbar->render() : '' ?>
 
-    <main class="card bg-dark-subtle flex-grow-1 <?= $isApp ? 'p-4' : 'pb-4 px-4' ?> overflow-y-auto"
-        style="max-height: 100vh">
+<main class="card bg-dark-subtle flex-grow-1 <?= $isApp ? 'p-4' : 'pb-4 px-4' ?> overflow-y-auto"
+      style="max-height: 100vh">
 
-        <?php
+    <?php
 
-        if ($isApp) {
-            switch ($request[2] ?? '') {
-                case '':
-                    $dashboard = new Dashboard();
-                    echo $dashboard->render();
-                    break;
-                case 'devices':
-                    $devices = new Devices($DatabaseConnection);
-                    echo $devices->render();
-                    break;
-                case 'groups':
-                    $groups = new Groups($DatabaseConnection);
-                    echo $groups->render();
-                    break;
-                case 'schedules':
-                    $schedules = new AddSchedule($DatabaseConnection);
-                    echo $schedules->render();
-                    break;
-                default:
-                    echo '404';
-                    break;
-            }
-        } else {
-            switch ($request[1]) {
-                case '':
-                    $landingPage = new LandingPage();
-                    echo $landingPage->render();
-                    break;
-                default:
-                    echo '404';
-                    break;
-            }
+    if ($isApp) {
+        switch ($request[2] ?? '') {
+            case '':
+                $dashboard = new Dashboard();
+                echo $dashboard->render();
+                break;
+            case 'devices':
+                $devices = new Devices($DatabaseConnection);
+                echo $devices->render();
+                break;
+            case 'groups':
+                $groups = new Groups($DatabaseConnection);
+                echo $groups->render();
+                break;
+            case 'schedules':
+                $schedules = new AddSchedule($DatabaseConnection);
+                echo $schedules->render();
+                break;
+            default:
+                echo '404';
+                break;
         }
+    } else {
+        switch ($request[1]) {
+            case '':
+                $landingPage = new LandingPage();
+                echo $landingPage->render();
+                break;
+            case 'login':
+//                if (isset($_SESSION['userID'])) {
+//                    header('Location: /app');
+//                    exit();
+//                }
+                $loginPage = new Login($DatabaseConnection);
+                echo $loginPage->render();
+                break;
+            case 'register':
+                $registerPage = new Register($DatabaseConnection);
+                echo $registerPage->render();
+                break;
+            default:
+                echo '404';
+                break;
+        }
+    }
 
-        ?>
-    </main>
-    <script src="/Js/ToggleDevice.js"></script>
+    ?>
+</main>
+<script src="/Js/ToggleDevice.js"></script>
 </body>
 
 </html>

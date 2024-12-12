@@ -1,6 +1,6 @@
 <?php
 
-namespace UI\components;
+namespace UI;
 
 use Entity\Device;
 use Interfaces\UIElement;
@@ -24,7 +24,7 @@ class ToggleDevice implements UIElement
         $newStatus = $status ? 0 : 1;
 
         $html .= "
-        <button class='btn btn-secondary toggleDevice' data-device-id='".$this->device->getId()."' data-new-status='".$newStatus."'>".$toggleText."</button>
+        <button class='btn btn-secondary toggleDevice' data-device-id='" . $this->device->getId() . "' data-new-status='" . $newStatus . "'>" . $toggleText . "</button>
         ";
 
         return $html;

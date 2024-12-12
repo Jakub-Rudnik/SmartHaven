@@ -1,6 +1,6 @@
 <?php
 
-namespace UI\components;
+namespace UI;
 
 use Interfaces\UIElement;
 use Lib\DatabaseConnection;

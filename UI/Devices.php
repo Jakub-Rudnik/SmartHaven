@@ -1,10 +1,10 @@
 <?php
 
-namespace UI\components;
+namespace UI;
 
+use Interfaces\UIElement;
 use Lib\DatabaseConnection;
 use Services\DeviceService;
-use Interfaces\UIElement;
 
 class Devices implements UIElement
 {
@@ -30,8 +30,8 @@ class Devices implements UIElement
                     <h5 class='mb-0 text-truncate' title='{$device->getName()}'>{$device->getName()}</h5>
                     <p class='m-0 text-secondary'><em>{$device->getRoom()}</em></p>
                 </div>
-                <svg class='".($device->getState() == 0 ? 'opacity-25' : '')."' width='64' height='64' viewBox='0 0 64 64' fill='none' xmlns='http://www.w3.org/2000/svg'>
-                    ".$this->getDeviceIcon($device->getType()->getId())."
+                <svg class='" . ($device->getState() == 0 ? 'opacity-25' : '') . "' width='64' height='64' viewBox='0 0 64 64' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                    " . $this->getDeviceIcon($device->getType()->getId()) . "
                 </svg>
             </a>";
         }

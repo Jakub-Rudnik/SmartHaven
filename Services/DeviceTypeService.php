@@ -3,19 +3,9 @@ declare(strict_types=1);
 
 namespace Services;
 
-require_once './Entity/DeviceType.php';
-require_once './Lib/DatabaseConnection.php';
-
 use Entity\DeviceType;
 use Exception;
 use Lib\DatabaseConnection;
-
-declare(strict_types=1);
-
-require_once './Entity/Device.php';
-require_once './Entity/DeviceType.php';
-require_once './Services/DeviceTypeService.php';
-require_once './Lib/Database.php';
 
 class DeviceTypeService
 {

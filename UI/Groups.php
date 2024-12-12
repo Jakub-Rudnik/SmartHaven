@@ -1,6 +1,6 @@
 <?php
 
-namespace UI\components;
+namespace UI;
 
 use Interfaces\UIElement;
 use Lib\DatabaseConnection;
@@ -37,7 +37,7 @@ class Groups implements UIElement
 
         foreach ($rooms as $roomName => $devices) {
             $html .= "<div>";
-            $html .= "<h2>".htmlspecialchars($roomName)."</h2>";
+            $html .= "<h2>" . htmlspecialchars($roomName) . "</h2>";
             $html .= "<div class='d-grid gap-4 devices py-3'>";
 
             foreach ($devices as $device) {
@@ -47,10 +47,10 @@ class Groups implements UIElement
                 $html .= "
                     <div class='rounded-4 p-4 device-card d-flex gap-2 justify-content-between align-items-center text-decoration-none text-white'>
                         <div class='d-flex flex-column justify-content-center'>
-                            <h3 class='mb-0 text-truncate'>".htmlspecialchars($device->getName())."</h3>
-                            <p class='mb-0 text-secondary'>".htmlspecialchars($deviceType->getName())."</p>
+                            <h3 class='mb-0 text-truncate'>" . htmlspecialchars($device->getName()) . "</h3>
+                            <p class='mb-0 text-secondary'>" . htmlspecialchars($deviceType->getName()) . "</p>
                         </div>
-                        ".$toggleBtn->render()."
+                        " . $toggleBtn->render() . "
                     </div>
                 ";
             }
