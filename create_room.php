@@ -1,5 +1,5 @@
 <?php
-include './Lib/Database.php';
+require_once './Lib/Database.php';
 require_once './Services/DeviceService.php';
 require_once './Services/DeviceTypeService.php';
 
@@ -11,12 +11,11 @@ function getDevices(DatabaseConnection $db): array {
     return $db->query($query);
 }
 
-// Zaktualizowanie lokalizacji urządzenia
 function updateDeviceLocation(DatabaseConnection $db, int $deviceId, string $newLocation): void {
     $query = "UPDATE Device SET Location = :location WHERE DeviceID = :deviceId";
     
     try {
-        $pdo = new PDO($db->dsn, $db->username, $db->password);
+        $pdo = $db->getPdo(); // Użycie istniejącego połączenia
         $stmt = $pdo->prepare($query);
         $stmt->execute([':location' => $newLocation, ':deviceId' => $deviceId]);
         echo "Lokalizacja urządzenia została zaktualizowana.";
@@ -24,6 +23,7 @@ function updateDeviceLocation(DatabaseConnection $db, int $deviceId, string $new
         echo "Błąd: " . $e->getMessage();
     }
 }
+
 
 // Inicjalizacja połączenia z bazą danych
 $db = new DatabaseConnection();
@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <h1>Zmień lokalizację urządzenia</h1>
     <form method="POST">
         <label for="device_id">Wybierz urządzenie:</label>
-        <select id="device_id" name="device_id" required>
+        <select id="device_id" name="deviceId" required>
             <option value="">-- Wybierz urządzenie --</option>
             <?php foreach ($devices as $device): ?>
                 <option value="<?= htmlspecialchars($device['DeviceID']) ?>">

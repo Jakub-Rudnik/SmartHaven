@@ -1,40 +1,27 @@
 <?php
 
 class DatabaseConnection {
-    private PDO | null $pdo;
+    private PDO | null $pdo = null;
 
     private string $dsn = 'mysql:host=db;port=3306;dbname=smarthaven';
     private string $username = 'smarthaven';
     private string $password = 'smarthaven';
 
-    private function openConnection() {
-        $this->pdo = new PDO($this->dsn, $this->username, $this->password);
+    public function getPdo(): PDO {
+        if ($this->pdo === null) {
+            $this->pdo = new PDO($this->dsn, $this->username, $this->password, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            ]);
+        }
+        return $this->pdo;
     }
 
-    private function closeConnection(): void{
-        $this->pdo = null;
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function query(string $query): array | object {
-        $this->openConnection();
-
-        $statement = $this->pdo->prepare($query);
+    public function query(string $query): array {
+        $pdo = $this->getPdo();
+        $statement = $pdo->prepare($query);
         $statement->execute();
         $result = $statement->fetchAll();
-
-        $this->closeConnection();
-
-        if ($result === false) {
-            throw new Exception('Error fetching data');
-        }
-
-        if (count($result) === 0) {
-            throw new Exception('No data found');
-        }
-
-        return $result;
+        return $result ?: [];
     }
 }
