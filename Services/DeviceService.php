@@ -35,8 +35,9 @@ class DeviceService
                 $row['DeviceID'],
                 $row['DeviceName'],
                 $deviceType,
+                '',
+                $status,
                 $row['Location'],
-                $status
             );
             $devices[] = $device;
         }
@@ -57,8 +58,9 @@ class DeviceService
                 $deviceData['DeviceID'],
                 $deviceData['DeviceName'],
                 $deviceType,
+                '',
+                $status,
                 $deviceData['Location'],
-                $status
             );
         } catch (Exception $e) {
             echo $e->getMessage();
@@ -131,8 +133,9 @@ class DeviceService
                 $deviceData['DeviceID'],
                 $deviceData['DeviceName'],
                 $deviceType,
-                $deviceData['Location'],
-                $status
+                '',
+                $status,
+                $deviceData['Location']
             );
         }
 
@@ -149,7 +152,7 @@ class DeviceService
         ];
 
         try {
-            $this->db->executeQuery($query, $params);
+            $this->db->execute($query, $params);
             return true;
         } catch (Exception $e) {
             echo 'Error assigning device to user: ' . $e->getMessage();
@@ -157,4 +160,5 @@ class DeviceService
         }
     }
 }
+
 ?>
