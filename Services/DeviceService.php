@@ -83,4 +83,101 @@ class DeviceService {
         return $deviceList;
     }
 
+
+    public function createDevice(string $name, int $typeId, ?string $location = null): bool {
+        $query = "INSERT INTO Device (DeviceName, DeviceTypeID, Location) VALUES (:name, :typeId, :location)";
+
+        try {
+            $params = [
+                ':name' => $name,
+                ':typeId' => $typeId,
+                ':location' => $location
+            ];
+            $this->db->executeQuery($query, $params);
+            return true;
+        } catch (Exception $e) {
+            echo $e->getMessage();
+            return false;
+        }
+    }
+
+    public function deleteDevice(int $id): bool {
+        $query = "DELETE FROM Device WHERE DeviceID = :id";
+
+        try {
+            $params = [':id' => $id];
+            $this->db->executeQuery($query, $params);
+            return true;
+        } catch (Exception $e) {
+            echo $e->getMessage();
+            return false;
+        }
+    }
+
+    public function updateDevice(int $id, string $name, int $typeId, ?string $location = null): bool {
+        $query = "UPDATE Device SET DeviceName = :name, DeviceTypeID = :typeId, Location = :location WHERE DeviceID = :id";
+
+        try {
+            $params = [
+                ':id' => $id,
+                ':name' => $name,
+                ':typeId' => $typeId,
+                ':location' => $location
+            ];
+            $this->db->executeQuery($query, $params);
+            return true;
+        } catch (Exception $e) {
+            echo $e->getMessage();
+            return false;
+        }
+    }
+
+    public function updateDeviceName(int $id, string $name): bool {
+        $query = "UPDATE Device SET DeviceName = :name WHERE DeviceID = :id";
+
+        try {
+            $params = [
+                ':id' => $id,
+                ':name' => $name
+            ];
+            $this->db->executeQuery($query, $params);
+            return true;
+        } catch (Exception $e) {
+            echo $e->getMessage();
+            return false;
+        }
+    }
+
+    public function updateDeviceType(int $id, int $typeId): bool {
+        $query = "UPDATE Device SET DeviceTypeID = :typeId WHERE DeviceID = :id";
+
+        try {
+            $params = [
+                ':id' => $id,
+                ':typeId' => $typeId
+            ];
+            $this->db->executeQuery($query, $params);
+            return true;
+        } catch (Exception $e) {
+            echo $e->getMessage();
+            return false;
+        }
+    }
+
+    public function updateDeviceLocation(int $id, ?string $location): bool {
+        $query = "UPDATE Device SET Location = :location WHERE DeviceID = :id";
+
+        try {
+            $params = [
+                ':id' => $id,
+                ':location' => $location
+            ];
+            $this->db->executeQuery($query, $params);
+            return true;
+        } catch (Exception $e) {
+            echo $e->getMessage();
+            return false;
+        }
+    }
+
 }
