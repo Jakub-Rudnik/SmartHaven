@@ -159,6 +159,8 @@ class DeviceService
             return false;
         }
     }
+
+    
 }
 
 ?>
