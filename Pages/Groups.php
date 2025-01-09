@@ -25,6 +25,8 @@ $currentPath = $_SERVER['REQUEST_URI'];
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
     </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </head>
 <body class="d-flex flex-md-row p-1 p-md-3 gap-3 w-100 vh-100 overflow-hidden">
 <?php
@@ -77,5 +79,6 @@ echo $navbar->render();
     </div>
 </main>
 <script src="/Js/ToggleDevice.js"></script>
+<script src="/Js/ToastMessage.js"></script>
 </body>
 </html>

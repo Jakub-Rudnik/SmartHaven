@@ -21,6 +21,10 @@ function toggleDevice(event, deviceId, status) {
                 // Refreshing the page after a status change
                 event.target.innerText = data.status ? 'Wyłącz' : 'Włącz';
                 event.target.dataset.newStatus = data.status === 0 ? 1 : 0;
+                showToastMessage(
+                    `Stan urządzenia został zmieniony na ${data.status ? 'włączony' : 'wyłączony'}`,
+  data.status
+                );
             } else {
                 console.error('Błąd przy zmianie statusu:', data.message);
             }
