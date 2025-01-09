@@ -26,7 +26,7 @@ class ScheduleService
 
     // Function to download schedules for the device
     public function getSchedulesForDevice($deviceId): array
-{
+    {
     $currentTime = date('H:i'); // Current time in H:i format
     $currentDayOfWeek = strtolower(date('l')); // Day of week (np. Monday -> 'poniedziałek')
 
@@ -45,7 +45,7 @@ class ScheduleService
         'currentTime' => $currentTime,
         'currentDayOfWeek' => $currentDayOfWeek,
     ]);
-}
+    }
 
     // Function to update the status of the device
     public function updateDeviceStatus(int $deviceId, int $newStatus)
@@ -59,7 +59,7 @@ class ScheduleService
             'newStatus' => $newStatus,
             'deviceId' => $deviceId
         ]);
-}
+    }
 
 
     // Function to process schedules and change the status of devices
