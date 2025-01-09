@@ -28,7 +28,20 @@ class ScheduleService
     public function getSchedulesForDevice($deviceId): array
     {
     $currentTime = date('H:i'); // Current time in H:i format
-    $currentDayOfWeek = strtolower(date('l')); // Day of week (np. Monday -> 'poniedziałek')
+    $currentDayOfWeek = strtolower(date('l')); 
+
+    $daysMap = [
+        'monday'    => 'poniedziałek',
+        'tuesday'   => 'wtorek',
+        'wednesday' => 'środa',
+        'thursday'  => 'czwartek',
+        'friday'    => 'piątek',
+        'saturday'  => 'sobota',
+        'sunday'    => 'niedziela'
+    ];
+    //Translation of the day of the week into Polish
+    $currentDayOfWeekPolish = $daysMap[$currentDayOfWeek];
+    
 
     $query = "SELECT * FROM Schedule 
               WHERE DeviceID = :deviceId
@@ -36,14 +49,14 @@ class ScheduleService
               AND (
                   RepeatPattern = 'codziennie'
                   OR
-                  (FIND_IN_SET(:currentDayOfWeek, RepeatPattern) > 0)
+                  (FIND_IN_SET(:currentDayOfWeekPolish, RepeatPattern) > 0)
               )
               AND StartTime = :currentTime"; // Check for exact StartTime match
     
     return $this->dbConnection->query($query, [
         'deviceId' => $deviceId,
         'currentTime' => $currentTime,
-        'currentDayOfWeek' => $currentDayOfWeek,
+        'currentDayOfWeekPolish' => $currentDayOfWeekPolish,
     ]);
     }
 
