@@ -2,41 +2,50 @@ services:
   db:
     image: mysql:latest
     environment:
-        MYSQL_ROOT_PASSWORD: root
-        MYSQL_DATABASE: smarthaven
-        MYSQL_USER: smarthaven
-        MYSQL_PASSWORD: smarthaven
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: smarthaven
+      MYSQL_USER: smarthaven
+      MYSQL_PASSWORD: smarthaven
     volumes:
-        - ./db:/docker-entrypoint-initdb.d/:ro
+      - ./db:/docker-entrypoint-initdb.d/:ro
     ports:
-        - 3306:3306
+      - 3306:3306
     networks:
-        - smarthaven-docker
+      - smarthaven-docker
   app:
     build:
-        dockerfile: Dockerfile
+      dockerfile: Dockerfile
     volumes:
-        - ./:/var/www/html
-        - ./.htaccess:/var/www/html/.htaccess
+      - ./:/var/www/html
+      - ./.htaccess:/var/www/html/.htaccess
     ports:
-        - 8080:80
+      - 8080:80
     depends_on:
-        - db
+      - db
     networks:
-        - smarthaven-docker
+      - smarthaven-docker
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     environment:
-        PMA_HOST: db
-        PMA_PORT: 3306
-        PMA_USER: smarthaven
-        PMA_PASSWORD: smarthaven
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: smarthaven
+      PMA_PASSWORD: smarthaven
     ports:
-        - 8081:80
+      - 8081:80
     depends_on:
-        - db
+      - db
     networks:
-        - smarthaven-docker
+      - smarthaven-docker
+  node-server:
+    image: node:20
+    container_name: node-server
+    working_dir: /DeviceSimulators
+    volumes:
+      - ./DeviceSimulators:/DeviceSimulators
+    command: "node index.js"
+    ports:
+      - "3000:3000"
 networks:
- smarthaven-docker:
-     driver: bridge
+  smarthaven-docker:
+    driver: bridge
