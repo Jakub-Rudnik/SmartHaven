@@ -20,13 +20,12 @@ class DeviceService
         $this->deviceTypeService = new DeviceTypeService($db);
     }
 
+    // ----------------------------------------------------------------------
+    //  C R U D
+    // ----------------------------------------------------------------------
+
     /**
      * Tworzy nowe urządzenie w bazie danych i zwraca ID nowego rekordu.
-     *
-     * @param string $deviceName
-     * @param int $deviceTypeId
-     * @param int|null $groupId  (null, jeśli urządzenie nie należy do żadnej grupy)
-     * @return int  ID nowo utworzonego urządzenia
      */
     public function createDevice(string $deviceName, int $deviceTypeId, ?int $groupId = null): int
     {
@@ -43,8 +42,7 @@ class DeviceService
 
         try {
             $this->db->execute($sql, $params);
-            // Zwracamy ostatnie wstawione ID (zakładamy, że DatabaseConnection ma taką metodę)
-            return (int)$this->db->getLastInsertId();
+            return (int) $this->db->getLastInsertId();
         } catch (Exception $e) {
             echo 'Error creating device: ' . $e->getMessage();
             return 0;
@@ -52,48 +50,7 @@ class DeviceService
     }
 
     /**
-     * Zwraca listę wszystkich urządzeń.
-     *
-     * @return Device[]
-     */
-    public function getDevices(): array
-    {
-        // Pobieramy również nazwę grupy (lub zastępujemy ją 'Brak grupy', jeśli GroupID jest NULL)
-        $sql = "
-            SELECT 
-                d.DeviceID,
-                d.DeviceName,
-                d.DeviceTypeID,
-                COALESCE(g.GroupName, 'Brak grupy') AS GroupName
-            FROM Device d
-            LEFT JOIN `Groups` g ON d.GroupID = g.GroupID
-        ";
-
-        $result = $this->db->query($sql);
-
-        $devices = [];
-        foreach ($result as $row) {
-            $deviceType = $this->deviceTypeService->getDeviceTypeById((int)$row['DeviceTypeID']);
-            $status = $this->getDeviceStatus((int)$row['DeviceID']);
-
-            $device = new Device(
-                (int)$row['DeviceID'],
-                $row['DeviceName'],
-                $deviceType,
-                '',                 // przykładowy opis, jeśli w Entity\Device mamy 'description'
-                $status,
-                $row['GroupName']  // nazwa grupy jako "location" w modelu
-            );
-            $devices[] = $device;
-        }
-        return $devices;
-    }
-
-    /**
      * Zwraca obiekt Device lub null, jeśli nie znaleziono.
-     *
-     * @param int $id
-     * @return Device|null
      */
     public function getDeviceById(int $id): ?Device
     {
@@ -120,7 +77,7 @@ class DeviceService
             $status = $this->getDeviceStatus((int)$deviceData['DeviceID']);
 
             return new Device(
-                (int)$deviceData['DeviceID'],
+                (int) $deviceData['DeviceID'],
                 $deviceData['DeviceName'],
                 $deviceType,
                 '',  // opis
@@ -136,12 +93,6 @@ class DeviceService
     /**
      * Aktualizuje istniejące urządzenie w bazie danych.
      * Zwraca true, jeśli aktualizacja się powiodła, w przeciwnym razie false.
-     *
-     * @param int $deviceId
-     * @param string $deviceName
-     * @param int $deviceTypeId
-     * @param int|null $groupId
-     * @return bool
      */
     public function updateDevice(int $deviceId, string $deviceName, int $deviceTypeId, ?int $groupId): bool
     {
@@ -173,9 +124,6 @@ class DeviceService
     /**
      * Usuwa urządzenie z bazy danych po ID.
      * Zwraca true, jeśli usunięto rekord, false w przypadku błędu.
-     *
-     * @param int $deviceId
-     * @return bool
      */
     public function deleteDevice(int $deviceId): bool
     {
@@ -191,11 +139,216 @@ class DeviceService
         }
     }
 
+    // ----------------------------------------------------------------------
+    //  Metody wyszukujące
+    // ----------------------------------------------------------------------
+
     /**
-     * Prywatna metoda pomocnicza do pobierania statusu urządzenia z tabeli DeviceParameter (ParameterID = 1 -> Status).
-     *
-     * @param int $deviceId
-     * @return bool
+     * Zwraca listę wszystkich urządzeń.
+     */
+    public function getDevices(): array
+    {
+        $sql = "
+            SELECT 
+                d.DeviceID,
+                d.DeviceName,
+                d.DeviceTypeID,
+                COALESCE(g.GroupName, 'Brak grupy') AS GroupName
+            FROM Device d
+            LEFT JOIN `Groups` g ON d.GroupID = g.GroupID
+        ";
+
+        $result = $this->db->query($sql);
+
+        $devices = [];
+        foreach ($result as $row) {
+            $deviceType = $this->deviceTypeService->getDeviceTypeById((int)$row['DeviceTypeID']);
+            $status = $this->getDeviceStatus((int)$row['DeviceID']);
+
+            $devices[] = new Device(
+                (int)$row['DeviceID'],
+                $row['DeviceName'],
+                $deviceType,
+                '',
+                $status,
+                $row['GroupName']
+            );
+        }
+        return $devices;
+    }
+
+    /**
+     * Zwraca urządzenia należące do danego użytkownika, które nie mają przypisanej grupy.
+     */
+    public function getDevicesNoGroupForUser(int $userId): array
+    {
+        $sql = "
+            SELECT 
+                d.DeviceID,
+                d.DeviceName,
+                d.DeviceTypeID,
+                COALESCE(g.GroupName, 'Brak grupy') AS GroupName
+            FROM Device d
+            JOIN UserDevice ud ON d.DeviceID = ud.DeviceID
+            LEFT JOIN `Groups` g ON d.GroupID = g.GroupID
+            WHERE ud.UserID = :userId
+              AND d.GroupID IS NULL
+        ";
+
+        $params = [':userId' => $userId];
+
+        return $this->queryToArray($sql, $params);
+    }
+
+    /**
+     * Zwraca urządzenia należące do danej grupy i danego użytkownika.
+     */
+    public function getDevicesByGroupIdForUser(int $groupId, int $userId): array
+    {
+        $sql = "
+            SELECT 
+                d.DeviceID,
+                d.DeviceName,
+                d.DeviceTypeID,
+                COALESCE(g.GroupName, 'Brak grupy') AS GroupName
+            FROM Device d
+            JOIN UserDevice ud ON d.DeviceID = ud.DeviceID
+            LEFT JOIN `Groups` g ON d.GroupID = g.GroupID
+            WHERE ud.UserID = :userId
+              AND d.GroupID = :groupId
+        ";
+
+        $params = [
+            ':userId'  => $userId,
+            ':groupId' => $groupId,
+        ];
+
+        return $this->queryToArray($sql, $params);
+    }
+
+    /**
+     * Zwraca wszystkie urządzenia pogrupowane wg nazwy grupy (dawniej 'Location').
+     * Dla każdego urządzenia dołączamy status (ParameterID = 1).
+     */
+    public function getDevicesGroupedByLocations(): array
+    {
+        $sql = "
+            SELECT 
+                d.DeviceID,
+                d.DeviceName,
+                d.DeviceTypeID,
+                COALESCE(g.GroupName, 'Brak grupy') AS GroupName,
+                dp.Value AS Status
+            FROM Device d
+            LEFT JOIN `Groups` g ON d.GroupID = g.GroupID
+            JOIN DeviceParameter dp ON d.DeviceID = dp.DeviceID
+            WHERE dp.ParameterID = 1
+            ORDER BY g.GroupName
+        ";
+
+        try {
+            $rows = $this->db->query($sql, []);
+        } catch (Exception $e) {
+            echo $e->getMessage();
+            return [];
+        }
+
+        $deviceList = [];
+        foreach ($rows as $row) {
+            $deviceType = $this->deviceTypeService->getDeviceTypeById((int)$row['DeviceTypeID']);
+            $status = ($row['Status'] === '1');
+
+            $deviceList[] = new Device(
+                (int)$row['DeviceID'],
+                $row['DeviceName'],
+                $deviceType,
+                '',
+                $status,
+                $row['GroupName']
+            );
+        }
+        return $deviceList;
+    }
+
+    /**
+     * Zwraca listę urządzeń na podstawie typu (DeviceType).
+     */
+    public function getDevicesByType(DeviceType $type): array
+    {
+        $sql = "
+            SELECT 
+                d.DeviceID,
+                d.DeviceName,
+                d.DeviceTypeID,
+                COALESCE(g.GroupName, 'Brak grupy') AS GroupName
+            FROM Device d
+            LEFT JOIN `Groups` g ON d.GroupID = g.GroupID
+            WHERE d.DeviceTypeID = :typeId
+        ";
+
+        $params = [':typeId' => $type->getId()];
+
+        return $this->queryToArray($sql, $params);
+    }
+
+    /**
+     * Zwraca listę urządzeń wg nazwy grupy (wcześniej 'lokalizacji').
+     * Zostawione dla kompatybilności, ale semantycznie pobiera po GroupName.
+     */
+    public function getDevicesByLocation(string $location): array
+    {
+        $sql = "
+            SELECT 
+                d.DeviceID,
+                d.DeviceName,
+                d.DeviceTypeID,
+                COALESCE(g.GroupName, 'Brak grupy') AS GroupName
+            FROM Device d
+            LEFT JOIN `Groups` g ON d.GroupID = g.GroupID
+            WHERE g.GroupName = :groupName
+        ";
+        $params = [':groupName' => $location];
+
+        return $this->queryToArray($sql, $params);
+    }
+
+    // ----------------------------------------------------------------------
+    //  Metody pomocnicze
+    // ----------------------------------------------------------------------
+
+    /**
+     * Metoda pomocnicza – wykonuje zapytanie i zwraca tablicę obiektów Device.
+     */
+    private function queryToArray(string $query, array $params = []): array
+    {
+        try {
+            $devicesData = $this->db->query($query, $params);
+        } catch (Exception $e) {
+            echo $e->getMessage();
+            return [];
+        }
+
+        $deviceList = [];
+        foreach ($devicesData as $deviceData) {
+            $deviceType = $this->deviceTypeService->getDeviceTypeById((int)$deviceData['DeviceTypeID']);
+            $status = $this->getDeviceStatus((int)$deviceData['DeviceID']);
+
+            $deviceList[] = new Device(
+                (int)$deviceData['DeviceID'],
+                $deviceData['DeviceName'],
+                $deviceType,
+                '', // opis
+                $status,
+                $deviceData['GroupName'] ?? 'Brak grupy'
+            );
+        }
+
+        return $deviceList;
+    }
+
+    /**
+     * Prywatna metoda pomocnicza do pobierania statusu urządzenia
+     * z tabeli DeviceParameter (ParameterID = 1 -> Status).
      */
     private function getDeviceStatus(int $deviceId): bool
     {
@@ -220,140 +373,7 @@ class DeviceService
     }
 
     /**
-     * Zwraca listę urządzeń na podstawie typu (DeviceType).
-     *
-     * @param DeviceType $type
-     * @return Device[]
-     */
-    public function getDevicesByType(DeviceType $type): array
-    {
-        $sql = "
-            SELECT 
-                d.DeviceID,
-                d.DeviceName,
-                d.DeviceTypeID,
-                COALESCE(g.GroupName, 'Brak grupy') AS GroupName
-            FROM Device d
-            LEFT JOIN `Groups` g ON d.GroupID = g.GroupID
-            WHERE d.DeviceTypeID = :typeId
-        ";
-        $params = [':typeId' => $type->getId()];
-
-        return $this->queryToArray($sql, $params);
-    }
-
-    /**
-     * Zwraca listę urządzeń wg nazwy grupy (wcześniej 'lokalizacji').
-     * Zostawione dla zachowania kompatybilności, ale semantycznie pobiera po GroupName.
-     *
-     * @param string $location  Nazwa grupy
-     * @return Device[]
-     */
-    public function getDevicesByLocation(string $location): array
-    {
-        $sql = "
-            SELECT 
-                d.DeviceID,
-                d.DeviceName,
-                d.DeviceTypeID,
-                COALESCE(g.GroupName, 'Brak grupy') AS GroupName
-            FROM Device d
-            LEFT JOIN `Groups` g ON d.GroupID = g.GroupID
-            WHERE g.GroupName = :groupName
-        ";
-        $params = [':groupName' => $location];
-
-        return $this->queryToArray($sql, $params);
-    }
-
-    /**
-     * Zwraca wszystkie urządzenia pogrupowane wg nazwy grupy (dawniej Location).
-     * Dla każdego urządzenia dołączamy status (ParameterID = 1).
-     *
-     * @return Device[]
-     */
-    public function getDevicesGroupedByLocations(): array
-    {
-        $sql = "
-            SELECT 
-                d.DeviceID,
-                d.DeviceName,
-                d.DeviceTypeID,
-                COALESCE(g.GroupName, 'Brak grupy') AS GroupName,
-                dp.Value AS Status
-            FROM Device d
-            LEFT JOIN `Groups` g ON d.GroupID = g.GroupID
-            JOIN DeviceParameter dp ON d.DeviceID = dp.DeviceID
-            WHERE dp.ParameterID = 1
-            ORDER BY g.GroupName
-        ";
-
-        // Możemy użyć queryToArray, ale trzeba delikatnie zinterpretować kolumnę Status (Value).
-        try {
-            $rows = $this->db->query($sql, []);
-        } catch (Exception $e) {
-            echo $e->getMessage();
-            return [];
-        }
-
-        $deviceList = [];
-        foreach ($rows as $row) {
-            $deviceType = $this->deviceTypeService->getDeviceTypeById((int)$row['DeviceTypeID']);
-            $status = ($row['Status'] === '1');
-
-            $deviceList[] = new Device(
-                (int)$row['DeviceID'],
-                $row['DeviceName'],
-                $deviceType,
-                '',  // opis
-                $status,
-                $row['GroupName']
-            );
-        }
-        return $deviceList;
-    }
-
-    /**
-     * Metoda pomocnicza – wykonuje zapytanie i zwraca tablicę obiektów Device.
-     *
-     * @param string $query
-     * @param array $params
-     * @return Device[]
-     */
-    private function queryToArray(string $query, array $params = []): array
-    {
-        try {
-            $devicesData = $this->db->query($query, $params);
-        } catch (Exception $e) {
-            echo $e->getMessage();
-            return [];
-        }
-
-        $deviceList = [];
-        foreach ($devicesData as $deviceData) {
-            $deviceType = $this->deviceTypeService->getDeviceTypeById((int)$deviceData['DeviceTypeID']);
-            // Tutaj pobieramy status przez getDeviceStatus() – bo mogło nie być w SELECT
-            $status = $this->getDeviceStatus((int)$deviceData['DeviceID']);
-
-            $deviceList[] = new Device(
-                (int)$deviceData['DeviceID'],
-                $deviceData['DeviceName'],
-                $deviceType,
-                '', // opis
-                $status,
-                $deviceData['GroupName'] ?? 'Brak grupy'
-            );
-        }
-
-        return $deviceList;
-    }
-
-    /**
      * Przypisuje urządzenie do konkretnego użytkownika (UserDevice).
-     *
-     * @param int $userId
-     * @param int $deviceId
-     * @return bool
      */
     public function assignDeviceToUser(int $userId, int $deviceId): bool
     {
@@ -372,5 +392,3 @@ class DeviceService
         }
     }
 }
-
-?>

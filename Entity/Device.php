@@ -9,19 +9,47 @@ class Device
     private int $id;
     private string $name;
     private DeviceType $type;
-    private ?string $room;
-    private bool $state;
-    private ?string $location;
 
-    public function __construct(int $id, string $name, DeviceType $type, ?string $room, bool $state, ?string $location)
-    {
-        $this->id = $id;
-        $this->name = $name;
-        $this->type = $type;
-        $this->room = $room;
-        $this->state = $state;
-        $this->location = $location;
+    /**
+     * Opcjonalny opis urządzenia (np. dodatkowe informacje, 
+     * w kodzie często przekazywany pusty string).
+     */
+    private ?string $description;
+
+    /**
+     * Czy urządzenie jest włączone (true) czy wyłączone (false).
+     * Wcześniej: getState() -> bool
+     */
+    private bool $status;
+
+    /**
+     * Nazwa grupy / pokoju, do której należy to urządzenie.
+     * Może być null, jeśli urządzenie nie należy do żadnej grupy.
+     */
+    private ?string $room;
+
+    /**
+     * Konstruktor z 6 parametrami, zgodnie z wywołaniami w DeviceService.
+     */
+    public function __construct(
+        int $id,
+        string $name,
+        DeviceType $type,
+        ?string $description,
+        bool $status,
+        ?string $room
+    ) {
+        $this->id          = $id;
+        $this->name        = $name;
+        $this->type        = $type;
+        $this->description = $description;
+        $this->status      = $status;
+        $this->room        = $room;
     }
+
+    // ------------------------------
+    // Gettery
+    // ------------------------------
 
     public function getId(): int
     {
@@ -33,23 +61,33 @@ class Device
         return $this->name;
     }
 
+    /**
+     * Wcześniej: getState(). 
+     * Teraz bardziej spójne: getStatus()
+     */
+    public function getStatus(): bool
+    {
+        return $this->status;
+    }
+
+    /**
+     * Zwraca nazwę grupy/pokoju (może być 'Brak grupy' w logice widoku)
+     */
     public function getRoom(): ?string
     {
         return $this->room;
     }
 
-    public function getState(): bool
+    /**
+     * Zwraca (opcjonalny) opis urządzenia.
+     */
+    public function getDescription(): ?string
     {
-        return $this->state;
+        return $this->description;
     }
 
     public function getType(): DeviceType
     {
         return $this->type;
     }
-    public function getLocation(): ?string
-    {
-        return $this->location;
-    }
 }
-?>
