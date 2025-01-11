@@ -35,14 +35,14 @@ class DeviceService
         ";
 
         $params = [
-            ':deviceName'   => $deviceName,
+            ':deviceName' => $deviceName,
             ':deviceTypeId' => $deviceTypeId,
-            ':groupId'      => $groupId,
+            ':groupId' => $groupId,
         ];
 
         try {
             $this->db->execute($sql, $params);
-            return (int) $this->db->getLastInsertId();
+            return (int)$this->db->getLastInsertId();
         } catch (Exception $e) {
             echo 'Error creating device: ' . $e->getMessage();
             return 0;
@@ -77,7 +77,7 @@ class DeviceService
             $status = $this->getDeviceStatus((int)$deviceData['DeviceID']);
 
             return new Device(
-                (int) $deviceData['DeviceID'],
+                (int)$deviceData['DeviceID'],
                 $deviceData['DeviceName'],
                 $deviceType,
                 '',  // opis
@@ -106,10 +106,10 @@ class DeviceService
         ";
 
         $params = [
-            ':deviceName'   => $deviceName,
+            ':deviceName' => $deviceName,
             ':deviceTypeId' => $deviceTypeId,
-            ':groupId'      => $groupId,
-            ':deviceId'     => $deviceId
+            ':groupId' => $groupId,
+            ':deviceId' => $deviceId
         ];
 
         try {
@@ -219,7 +219,7 @@ class DeviceService
         ";
 
         $params = [
-            ':userId'  => $userId,
+            ':userId' => $userId,
             ':groupId' => $groupId,
         ];
 
@@ -312,6 +312,27 @@ class DeviceService
         return $this->queryToArray($sql, $params);
     }
 
+
+    public function getDeviceParameters(int $deviceId): array
+    {
+        $sql = "
+            SELECT 
+                p.Name,
+                dp.Value
+            FROM DeviceParameter dp
+            INNER JOIN Parameter p ON dp.ParameterID = p.ParameterID
+            WHERE dp.DeviceID = :deviceId
+        ";
+        $params = [':deviceId' => $deviceId];
+
+        try {
+            return $this->db->query($sql, $params);
+        } catch (Exception $e) {
+            echo $e->getMessage();
+            return [];
+        }
+    }
+
     // ----------------------------------------------------------------------
     //  Metody pomocnicze
     // ----------------------------------------------------------------------
@@ -365,7 +386,7 @@ class DeviceService
             if (count($result) > 0) {
                 return $result[0]['Value'] === '1';
             }
-            return false; 
+            return false;
         } catch (Exception $e) {
             echo $e->getMessage();
             return false;
@@ -379,7 +400,7 @@ class DeviceService
     {
         $query = "INSERT INTO UserDevice (UserID, DeviceID) VALUES (:userId, :deviceId)";
         $params = [
-            ':userId'   => $userId,
+            ':userId' => $userId,
             ':deviceId' => $deviceId
         ];
 

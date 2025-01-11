@@ -53,6 +53,10 @@ if ($isApp) {
             require_once 'Pages/Dashboard.php';
             break;
         case 'devices':
+            if ($request[3] ?? '') {
+                require_once 'Pages/Device.php';
+                break;
+            }
             require_once 'Pages/Devices.php';
             break;
         case 'groups':

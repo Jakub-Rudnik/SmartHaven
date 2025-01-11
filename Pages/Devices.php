@@ -85,7 +85,7 @@ echo $navbar->render();
             ?>
 
             <a class='rounded-4 p-4 device-card d-flex gap-2 justify-content-between align-items-center text-decoration-none text-white'
-               href='/devices/<?= $device->getId() ?>'>
+               href='/app/devices/<?= $device->getId() ?>'>
                 <div class='d-flex flex-column justify-content-center'>
                     <!-- Nazwa urządzenia -->
                     <h5 class='mb-0 text-truncate' title='<?= htmlspecialchars($device->getName()) ?>'>
@@ -100,7 +100,7 @@ echo $navbar->render();
                 <svg class='<?= $iconOpacityClass ?>' width='64' height='64'
                      viewBox='0 0 64 64'
                      fill='none' xmlns='http://www.w3.org/2000/svg'>
-                    <?= getDeviceIcon((string) $device->getType()->getId()) ?>
+                    <?= getDeviceIcon((string)$device->getType()->getId()) ?>
                 </svg>
             </a>
         <?php endforeach ?>

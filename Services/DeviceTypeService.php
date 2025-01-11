@@ -58,6 +58,11 @@ class DeviceTypeService
         }
     }
 
+    public function getDeviceTypeParameters(string $name)
+    {
+
+    }
+
     public function addDeviceType(DeviceType $deviceType): void
     {
         $query = 'INSERT INTO DeviceType (TypeName, Description) VALUES (:name, :description)';
