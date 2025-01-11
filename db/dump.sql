@@ -77,6 +77,7 @@ CREATE TABLE `Parameter` (
   PRIMARY KEY (`ParameterID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+
 --
 -- Wstawienie parametrów
 --
@@ -98,6 +99,7 @@ CREATE TABLE `DeviceType` (
   `Description` text,
   PRIMARY KEY (`DeviceTypeID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 
 --
 -- Przykładowe typy urządzeń
@@ -276,7 +278,6 @@ CREATE TABLE `Schedule` (
   CONSTRAINT `Schedule_ibfk_1` FOREIGN KEY (`DeviceID`) REFERENCES `Device` (`DeviceID`) ON DELETE CASCADE,
   CONSTRAINT `Schedule_ibfk_2` FOREIGN KEY (`ParameterID`) REFERENCES `Parameter` (`ParameterID`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
 --
 -- Przykładowy harmonogram
 --

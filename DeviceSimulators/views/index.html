@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Device Simulators</title>
+</head>
+<body>
+<h1>Device Simulators</h1>
+<h2>Add simulation of a device</h2>
+<form id="deviceForm">
+    <label for="deviceName">Device Name:</label>
+    <input type="text" id="deviceName" name="deviceName" required>
+
+    <label for="deviceType">Device Type:</label>
+    <select id="deviceType" name="deviceType" required>
+        <option value="1">Ac</option>
+        <option value="2">Gate</option>
+    </select>
+
+    <button type="submit">Add</button>
+</form>
+
+<h2>Devices</h2>
+<ul id="devices"></ul>
+
+<script type="module">
+    const form = document.querySelector('#deviceForm');
+    const devices = document.querySelector('#devices');
+    let switchDeviceForms = [];
+
+    function displayDevice(device) {
+        devices.innerHTML += `<li data-id="${device.id}">ID: ${device.id}, Name: ${device.name} | Type: ${device.type} | ${device.status} | <form class="switchDevice"><input value="${device.id}" type="hidden"><button type="submit">Change status</button></form></li>`
+    }
+
+    async function switchDevice(deviceId) {
+        const response = await fetch(`http://localhost:3000/device/${deviceId}/update-status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({deviceId})
+        });
+        const data = await response.json();
+        const device = devices.querySelector(`[data-id="${data.id}"]`);
+        if (device) {
+            device.innerHTML = `ID: ${data.id}, Name: ${data.name} | Type: ${data.type} | ${data.status} | <form class="switchDevice"><input type="number" value="${data.id}" hidden><button type="submit">Change status</button></form>`;
+        }
+    }
+
+    function updateSwitches() {
+        switchDeviceForms.forEach((form) => {
+            form.removeEventListener('submit', handleSwitchDevice);
+        });
+        switchDeviceForms = document.querySelectorAll('.switchDevice');
+        switchDeviceForms.forEach(switchDeviceForm => {
+                switchDeviceForm.addEventListener('submit', handleSwitchDevice);
+            }
+        )
+    }
+
+    function handleSwitchDevice(e) {
+        e.preventDefault();
+        const deviceId = Number(e.target.querySelector('input').value);
+        switchDevice(deviceId);
+    }
+
+    const response = await fetch('http://localhost:3000/devices');
+    const data = await response.json();
+
+    data.forEach(device => displayDevice(device))
+    updateSwitches();
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.querySelector('#deviceName').value;
+        const type = Number(document.querySelector('#deviceType').value);
+
+        const response = await fetch('http://localhost:3000/create-device', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({name, type})
+        })
+        const data = await response.json();
+        displayDevice(data);
+        updateSwitches();
+    })
+</script>
+</body>
+</html>
