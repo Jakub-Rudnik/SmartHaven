@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Pages;
 
 use Lib\DatabaseConnection;
@@ -10,13 +9,21 @@ use UI\Navbar;
 
 $db = new DatabaseConnection();
 $deviceService = new DeviceService($db);
+
+// Pobieramy listę wszystkich urządzeń
 $devices = $deviceService->getDevices();
+
 $currentPath = $_SERVER['REQUEST_URI'];
 
+/**
+ * Helper: Zwraca fragment SVG (ikona) zależnie od typu urządzenia (ID DeviceType).
+ * W Twoim przypadku: ID=2 => Lampa, cokolwiek innego => Domyślna ikona.
+ */
 function getDeviceIcon(string $type): string
 {
     switch ($type) {
         case 2:
+            // Ikona lampy
             return '
                 <g clip-path="url(#clip0_5507_2136)">
                     <path d="M8.00002 24C7.9999 20.0368 8.98121 16.1353 10.8563 12.6439C12.7315 9.15238 15.442 6.17959 18.746 3.99094C22.05 1.8023 25.8446 0.465915 29.7909 0.101127C33.7373 -0.263661 37.7125 0.354498 41.3617 1.90041C45.0109 3.44632 48.2205 5.87186 50.7039 8.96046C53.1873 12.0491 54.8671 15.7046 55.5935 19.6006C56.3198 23.4966 56.0701 27.5119 54.8665 31.2878C53.6629 35.0638 51.543 38.483 48.696 41.24C47.884 42.024 47.26 42.84 46.884 43.716L43.836 50.792C43.6814 51.1506 43.4251 51.4561 43.0988 51.6708C42.7726 51.8855 42.3906 51.9999 42 52H22C21.6088 52.0007 21.2259 51.8866 20.8989 51.6719C20.5718 51.4572 20.3149 51.1512 20.16 50.792L17.116 43.712C16.677 42.7789 16.0617 41.9395 15.304 41.24C12.9898 39.0052 11.1501 36.3266 9.89512 33.3643C8.64012 30.4021 7.99556 27.2171 8.00002 24ZM20 58C20 57.4696 20.2107 56.9609 20.5858 56.5858C20.9609 56.2107 21.4696 56 22 56H42C42.5305 56 43.0392 56.2107 43.4142 56.5858C43.7893 56.9609 44 57.4696 44 58C44 58.5304 43.7893 59.0391 43.4142 59.4142C43.0392 59.7893 42.5305 60 42 60L41.104 61.788C40.7721 62.4523 40.2617 63.0111 39.6301 63.4018C38.9985 63.7925 38.2707 63.9996 37.528 64H26.472C25.7294 63.9996 25.0015 63.7925 24.3699 63.4018C23.7383 63.0111 23.228 62.4523 22.896 61.788L22 60C21.4696 60 20.9609 59.7893 20.5858 59.4142C20.2107 59.0391 20 58.5304 20 58Z" fill="white"/>
@@ -25,8 +32,10 @@ function getDeviceIcon(string $type): string
                     <clipPath id="clip0_5507_2136">
                         <rect width="64" height="64" fill="white"/>
                     </clipPath>
-                </defs>';
+                </defs>
+            ';
         default:
+            // Domyślna ikona (np. kwadrat)
             return '
                 <g clip-path="url(#clip0_5533_170)">
                     <path d="M26 24C25.4696 24 24.9609 24.2107 24.5858 24.5858C24.2107 24.9609 24 25.4696 24 26V38C24 38.5304 24.2107 39.0391 24.5858 39.4142C24.9609 39.7893 25.4696 40 26 40H38C38.5304 40 39.0391 39.7893 39.4142 39.4142C39.7893 39.0391 40 38.5304 40 38V26C40 25.4696 39.7893 24.9609 39.4142 24.5858C39.0391 24.2107 38.5304 24 38 24H26Z" fill="white"/>
@@ -36,7 +45,8 @@ function getDeviceIcon(string $type): string
                     <clipPath id="clip0_5533_170">
                         <rect width="64" height="64" fill="white"/>
                     </clipPath>
-                </defs>';
+                </defs>
+            ';
     }
 }
 
@@ -49,31 +59,48 @@ function getDeviceIcon(string $type): string
     <title>Urządzenia | SmartHaven</title>
     <link rel="stylesheet" href="/styles/main.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous">
     </script>
 </head>
 <body class="d-flex flex-md-row p-1 p-md-3 gap-3 w-100 vh-100 overflow-hidden">
+
 <?php
+// Pasek nawigacji
 $navbar = new Navbar($currentPath);
 echo $navbar->render();
 ?>
+
 <main class="card bg-dark-subtle flex-grow-1 p-4 overflow-y-auto" style="max-height: 100vh">
     <?php
+    // Nagłówek strony
     $header = new Header('Urządzenia');
     echo $header->render();
     ?>
     <div class='d-grid gap-4 devices py-5'>
         <?php foreach ($devices as $device): ?>
+            <?php
+            // Jeżeli status=FALSE -> dodajemy klasę 'opacity-25' (wyszarz ikonę)
+            $iconOpacityClass = !$device->getStatus() ? 'opacity-25' : '';
+            ?>
+
             <a class='rounded-4 p-4 device-card d-flex gap-2 justify-content-between align-items-center text-decoration-none text-white'
-               href='/devices/{$device->getId()}'>
+               href='/devices/<?= $device->getId() ?>'>
                 <div class='d-flex flex-column justify-content-center'>
-                    <h5 class='mb-0 text-truncate' title='{$device->getName()}'><?= $device->getName() ?></h5>
-                    <p class='m-0 text-secondary'><em><?= $device->getRoom() ?></em></p>
+                    <!-- Nazwa urządzenia -->
+                    <h5 class='mb-0 text-truncate' title='<?= htmlspecialchars($device->getName()) ?>'>
+                        <?= htmlspecialchars($device->getName()) ?>
+                    </h5>
+                    <!-- Nazwa grupy (Room) -->
+                    <p class='m-0 text-secondary'>
+                        <em><?= htmlspecialchars($device->getRoom()) ?></em>
+                    </p>
                 </div>
-                <svg class='<?= $device->getState() == 0 ? 'opacity-25' : '' ?>' width='64' height='64'
+                <!-- Ikona urządzenia (zależna od DeviceTypeID), wyszarzana jeśli wyłączone -->
+                <svg class='<?= $iconOpacityClass ?>' width='64' height='64'
                      viewBox='0 0 64 64'
                      fill='none' xmlns='http://www.w3.org/2000/svg'>
-                    <?= getDeviceIcon($device->getType()->getId()) ?>
+                    <?= getDeviceIcon((string) $device->getType()->getId()) ?>
                 </svg>
             </a>
         <?php endforeach ?>
