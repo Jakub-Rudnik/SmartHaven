@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Device Simulators</title>
+</head>
+<body>
+<h1>Device Simulators</h1>
+<h2>Add simulation of a device</h2>
+<form id="deviceForm">
+    <label for="deviceName">Device Name:</label>
+    <input type="text" id="deviceName" name="deviceName" required>
+
+    <label for="deviceType">Device Type:</label>
+    <select id="deviceType" name="deviceType" required>
+        <option value="1">Ac</option>
+        <option value="2">Gate</option>
+    </select>
+
+    <button type="submit">Add</button>
+</form>
+
+<h2>Devices</h2>
+<div id="devices"></div>
+
+<script type="module">
+    document.addEventListener('DOMContentLoaded', async () => {
+        const form = document.querySelector('#deviceForm');
+        const devices = document.querySelector('#devices');
+
+        function displayDevice(device, parameters) {
+            devices.innerHTML += `
+            <div class="device" data-id="${device.id}">
+                <h2>${device.name}</h2>
+                <ul>
+                    ${parameters}
+                </ul>
+                <button class="switch" data-id="${device.id}">Switch</button>
+            </div>
+        `;
+        }
+
+        function displayDevices(devicesData) {
+            devices.innerHTML = "";  // Resetuje zawartość przed odświeżeniem
+            devicesData.forEach(device => {
+                let parametersHTML = '';
+                device.data.forEach(parameter => {
+                    parametersHTML += `<li>${parameter.name}: ${parameter.value}</li>`;
+                });
+                displayDevice(device, parametersHTML);
+            });
+        }
+
+        const response = await fetch('http://localhost:3000/devices');
+        const devicesData = await response.json();
+
+        displayDevices(devicesData);
+
+        // Delegacja zdarzeń - obsługujemy wszystkie kliknięcia w przyciski .switch
+        devices.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('switch')) {
+                const deviceId = Number(e.target.dataset.id);
+                const searchedDevice = devicesData.find(device => device.id === deviceId);
+                const previousValue = searchedDevice.data.find(elem => elem.name === 'status').value;
+
+                const response = await fetch(`http://localhost:3000/devices/${deviceId}/update-parameter`, {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        "parameter": "status",
+                        "value": previousValue === 1 ? 0 : 1
+                    })
+                });
+
+                const updatedDevice = await response.json();
+                const idx = devicesData.findIndex(deviceData => deviceData.id === updatedDevice.id);
+                devicesData[idx] = updatedDevice;  // Aktualizacja lokalnych danych urządzenia
+                displayDevices(devicesData);  // Ponowne wyświetlenie listy urządzeń
+            }
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.querySelector('#deviceName').value;
+            const type = Number(document.querySelector('#deviceType').value);
+
+            const response = await fetch('http://localhost:3000/create-device', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({name, type})
+            });
+            const newDevice = await response.json();
+
+            let parametersHTML = '';
+            newDevice.data.forEach(parameter => {
+                parametersHTML += `<li>${parameter.name}: ${parameter.value}</li>`;
+            });
+
+            devicesData.push(newDevice);  // Dodanie nowego urządzenia do listy
+            displayDevices(devicesData);  // Wyświetlenie listy z nowym urządzeniem
+        });
+    });
+
+</script>
+</body>
+</html>
