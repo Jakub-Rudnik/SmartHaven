@@ -29,6 +29,8 @@ class DeviceService
      */
     public function createDevice(string $deviceName, int $deviceTypeId, ?int $groupId = null): int
     {
+        $result = '';
+
         $sql = "
             INSERT INTO Device (DeviceName, DeviceTypeID, GroupID)
             VALUES (:deviceName, :deviceTypeId, :groupId)
@@ -41,12 +43,14 @@ class DeviceService
         ];
 
         try {
-            $this->db->execute($sql, $params);
-            return (int)$this->db->getLastInsertId();
+            $result = $this->db->query($sql, $params);
         } catch (Exception $e) {
             echo 'Error creating device: ' . $e->getMessage();
             return 0;
         }
+
+        var_dump($result);
+        return (int)$result;
     }
 
     /**
@@ -156,9 +160,13 @@ class DeviceService
                 COALESCE(g.GroupName, 'Brak grupy') AS GroupName
             FROM Device d
             LEFT JOIN `Groups` g ON d.GroupID = g.GroupID
+            JOIN UserDevice ud ON d.DeviceID = ud.DeviceID
+            WHERE ud.UserID = :userId;
         ";
 
-        $result = $this->db->query($sql);
+        $params = [':userId' => $_SESSION['userID']];
+
+        $result = $this->db->query($sql, $params);
 
         $devices = [];
         foreach ($result as $row) {

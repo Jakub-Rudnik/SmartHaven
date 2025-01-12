@@ -78,6 +78,9 @@ echo $navbar->render();
     echo $header->render();
     ?>
     <div class='d-grid gap-4 devices py-5'>
+        <?php if (count($devices) === 0) : ?>
+            <p class="text-muted">Brak urządzeń</p>
+        <?php endif ?>
         <?php foreach ($devices as $device): ?>
             <?php
             // Jeżeli status=FALSE -> dodajemy klasę 'opacity-25' (wyszarz ikonę)

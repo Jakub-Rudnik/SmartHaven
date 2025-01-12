@@ -11,7 +11,7 @@ class Device
     private DeviceType $type;
 
     /**
-     * Opcjonalny opis urządzenia (np. dodatkowe informacje, 
+     * Opcjonalny opis urządzenia (np. dodatkowe informacje,
      * w kodzie często przekazywany pusty string).
      */
     private ?string $description;
@@ -27,6 +27,7 @@ class Device
      * Może być null, jeśli urządzenie nie należy do żadnej grupy.
      */
     private ?string $room;
+    private string $url;
 
     /**
      * Konstruktor z 6 parametrami, zgodnie z wywołaniami w DeviceService.
@@ -37,14 +38,16 @@ class Device
         DeviceType $type,
         ?string $description,
         bool $status,
-        ?string $room
+        ?string $room,
+        ?string $url = ''
     ) {
-        $this->id          = $id;
-        $this->name        = $name;
-        $this->type        = $type;
+        $this->id = $id;
+        $this->name = $name;
+        $this->type = $type;
         $this->description = $description;
-        $this->status      = $status;
-        $this->room        = $room;
+        $this->status = $status;
+        $this->room = $room;
+        $this->url = $url;
     }
 
     // ------------------------------
@@ -62,7 +65,7 @@ class Device
     }
 
     /**
-     * Wcześniej: getState(). 
+     * Wcześniej: getState().
      * Teraz bardziej spójne: getStatus()
      */
     public function getStatus(): bool
@@ -89,5 +92,10 @@ class Device
     public function getType(): DeviceType
     {
         return $this->type;
+    }
+
+    public function getUrl(): string
+    {
+        return $this->url;
     }
 }

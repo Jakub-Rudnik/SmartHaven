@@ -31,8 +31,9 @@ if ($request[1] == 'api') {
 }
 
 $isApp = false;
-if ($request[1] == 'app')
+if ($request[1] == 'app') {
     $isApp = true;
+}
 
 
 $DatabaseConnection = new DatabaseConnection();
@@ -53,9 +54,16 @@ if ($isApp) {
             require_once 'Pages/Dashboard.php';
             break;
         case 'devices':
-            if ($request[3] ?? '') {
-                require_once 'Pages/Device.php';
-                break;
+            if (isset($request[3])) {
+                switch ($request[3] ?? '') {
+                    case 'create':
+                        require_once 'Pages/CreateDevice.php';
+                        break;
+                    default:
+                        require_once 'Pages/Device.php';
+                        break;
+                }
+                return;
             }
             require_once 'Pages/Devices.php';
             break;
