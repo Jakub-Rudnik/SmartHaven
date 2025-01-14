@@ -6,6 +6,8 @@ services:
       MYSQL_DATABASE: smarthaven
       MYSQL_USER: smarthaven
       MYSQL_PASSWORD: smarthaven
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_polish_ci
     volumes:
       - ./db:/docker-entrypoint-initdb.d/:ro
     ports:
@@ -29,23 +31,23 @@ services:
     environment:
       PMA_HOST: db
       PMA_PORT: 3306
-      PMA_USER: smarthaven
-      PMA_PASSWORD: smarthaven
+      PMA_USER: root
+      PMA_PASSWORD: root
     ports:
       - 8081:80
     depends_on:
       - db
     networks:
       - smarthaven-docker
-  node-server:
-    image: node:20
-    container_name: node-server
-    working_dir: /DeviceSimulators
-    volumes:
-      - ./DeviceSimulators:/DeviceSimulators
-    command: "node index.js"
-    ports:
-      - "3000:3000"
+#  node-server:
+#    image: node:20
+#    container_name: node-server
+#    working_dir: /DeviceSimulators
+#    volumes:
+#      - ./DeviceSimulators:/DeviceSimulators
+#    command: "node app.js"
+#    ports:
+#      - "3000:3000"
 networks:
   smarthaven-docker:
     driver: bridge
