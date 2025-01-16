@@ -2,8 +2,8 @@ function showToastMessage(message, status) {
     Toastify({
       text: message,
       duration: 3000,
-      gravity: 'top',  // top lub bottom
-      position: 'right',  // right lub left
+      gravity: 'top',  
+      position: 'right', 
       stopOnFocus: true,
       style: {
         background: status

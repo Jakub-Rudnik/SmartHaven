@@ -22,10 +22,10 @@ if (isset($data['deviceId']) && isset($data['status'])) {
         file_put_contents(
             'parameters.txt', 
             sprintf(
-                "%s | ID=%d | Status=%d\n",
-                date('Y-m-d H:i:s'),
+                "%s | Urządzenie o ID=%d zmieniło status na %s\n",
+                date('Y-m-d H:i:s', strtotime('+1 hour')),
                 $deviceId,
-                $status
+                $status === 1 ? 'włączony' : 'wyłączony'
             ),
             FILE_APPEND
         );
