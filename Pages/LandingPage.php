@@ -42,9 +42,6 @@ namespace Pages;
                         <a class="nav-link" href="#devices">Urządzenia</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#automation">Automatyzacje</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" href="#groups">Pomieszczenia</a>
                     </li>
                 </ul>
@@ -318,26 +315,6 @@ namespace Pages;
             </div>
         </div>
     </div>
-
-    <div id="automation" class="d-flex align-items-center justify-content-center section-padding">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-6 card d-none d-md-flex justify-content-center align-items-center p-2">
-                    <img src="/Public/Images/schedules-smarthaven.png" alt="Interfejs harmonogramów"
-                         class="w-100 object-fit-cover">
-                </div>
-                <div class="col-md-6 ps-md-5">
-                    <h2 class="mb-4"><strong>Automatyzacje i Harmonogramy</strong></h2>
-                    <p>Zautomatyzuj swój dom dzięki harmonogramom i scenariuszom, które ułatwiają codzienne życie.</p>
-                    <ul>
-                        <li>Twórz scenariusze dostosowane do Twoich potrzeb.</li>
-                        <li>Planuj zadania na konkretną godzinę.</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-    ';
 
     <div id="groups" class="d-flex align-items-center justify-content-center section-padding">
         <div class="container">
