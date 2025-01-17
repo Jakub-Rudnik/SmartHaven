@@ -44,14 +44,16 @@ class DatabaseConnection
         return $result;
     }
 
-    public function execute(string $query, array $params = []): void
+    public function execute(string $query, array $params = []): string|bool
     {
         $this->openConnection();
 
         $statement = $this->pdo->prepare($query);
         $statement->execute($params);
-
+        $lastInsertId = $this->pdo->lastInsertId();
         $this->closeConnection();
+
+        return $lastInsertId;
     }
 
     public function getConnection(): PDO

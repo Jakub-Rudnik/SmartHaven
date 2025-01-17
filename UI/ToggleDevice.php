@@ -5,7 +5,6 @@ namespace UI;
 use Entity\Device;
 use Interfaces\UIElement;
 
-
 class ToggleDevice implements UIElement
 {
     private Device $device;
@@ -15,23 +14,25 @@ class ToggleDevice implements UIElement
         $this->device = $device;
     }
 
-    function render(): string
+    public function render(): string
     {
-        $html = "";
-
-        $status = $this->device->getState();
-        $toggleText = $status == 1 ? 'Wyłącz' : 'Włącz';
+        // Uzyskujemy aktualny status jako bool
+        $status = $this->device->getStatus(); 
+        // Tekst przycisku w zależności od obecnego statusu
+        $toggleText = $status ? 'Wyłącz' : 'Włącz';
+        // Nowy status (0 / 1) – przekazywany w atrybucie data-new-status
         $newStatus = $status ? 0 : 1;
 
-        $html .= "
-        <button class='btn btn-secondary toggleDevice' data-device-id='" . $this->device->getId() . "' data-new-status='" . $newStatus . "'>" . $toggleText . "</button>
+        $html = "
+            <button 
+                class='btn btn-secondary toggleDevice' 
+                data-device-id='{$this->device->getId()}'
+                data-new-status='{$newStatus}'
+            >
+                {$toggleText}
+            </button>
         ";
 
         return $html;
     }
 }
-
-?>
-
-
-

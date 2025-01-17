@@ -3,10 +3,20 @@
 namespace Pages;
 
 
+use Lib\DatabaseConnection;
+use Services\DeviceService;
+use Services\GroupService;
 use UI\Header;
 use UI\Navbar;
 
 $currentPath = $_SERVER['REQUEST_URI'];
+
+$db = new DatabaseConnection();
+$deviceService = new DeviceService($db);
+$groupService = new GroupService($db);
+
+$groups = $groupService->getGroupsByUserId($_SESSION['userID']);
+$devices = $deviceService->getDevices();
 ?>
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
@@ -29,6 +39,30 @@ echo $navbar->render();
     $header = new Header('Witaj ' . $_SESSION['username'] . '! 😎');
     echo $header->render();
     ?>
+
+    <div class='d-flex flex-wrap gap-5 py-5'>
+        <div class="card flex-1 w-100">
+            <h5 class="card-header p-3">Urządzenia</h5>
+            <div class='d-flex flex-column gap-5 p-5'>
+                <?php if (count($devices) === 0) : ?>
+                    <p class="text-muted">Brak urządzeń</p>
+                <?php else : ?>
+                    <h2 class="text-center"><?= count($devices) ?></h2>
+                <?php endif; ?>
+            </div>
+        </div>
+        <div class="card flex-1 w-100">
+            <h5 class="card-header p-3">Grupy urządzeń</h5>
+            <div class='d-flex flex-column gap-5 p-5'>
+                <?php if (count($groups) === 0) : ?>
+                    <p class="text-muted">Brak grup</p>
+                <?php else : ?>
+                    <h2 class="text-center"><?= count($groups) ?></h2>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+
 </main>
 </body>
 </html>
