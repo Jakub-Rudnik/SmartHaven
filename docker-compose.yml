@@ -39,15 +39,15 @@ services:
       - db
     networks:
       - smarthaven-docker
-#  node-server:
-#    image: node:20
-#    container_name: node-server
-#    working_dir: /DeviceSimulators
-#    volumes:
-#      - ./DeviceSimulators:/DeviceSimulators
-#    command: "node app.js"
-#    ports:
-#      - "3000:3000"
+  node-server:
+    image: node:20
+    container_name: node-server
+    working_dir: /DeviceSimulators
+    volumes:
+      - ./DeviceSimulators:/DeviceSimulators
+    command: "node ./src/app.js"
+    ports:
+      - "3000:3000"
 networks:
   smarthaven-docker:
     driver: bridge

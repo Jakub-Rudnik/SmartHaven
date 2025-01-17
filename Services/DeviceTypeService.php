@@ -58,9 +58,11 @@ class DeviceTypeService
         }
     }
 
-    public function getDeviceTypeParameters(string $name)
+    public function getDeviceTypeParameters(int $id): array
     {
-
+        $query = 'SELECT p.ParameterID, p.Name, p.Unit FROM Parameter as p JOIN DeviceTypeParameter as dtp ON p.ParameterID = dtp.ParameterID WHERE dtp.DeviceTypeID = :id';
+        $params = [':id' => $id];
+        return $this->db->query($query, $params);
     }
 
     public function addDeviceType(DeviceType $deviceType): void

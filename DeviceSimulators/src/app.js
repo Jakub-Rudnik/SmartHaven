@@ -37,7 +37,23 @@ const io = new SocketIOServer(server, {cors: {origin: '*'}});
 app.use(express.json());
 
 io.on('connection', (socket) => {
-    console.log('New connection');
+    console.log(`New connection: ${socket.id}`);
+
+    socket.on('joinRoom', (deviceId) => {
+        const device = devices.find((d) => d.id === deviceId);
+
+        if (device) {
+            socket.join(`device-${deviceId}`);
+            console.log(`User ${socket.id} joined room: device-${deviceId}`);
+            socket.emit('roomJoined', {success: true, data: device});
+        } else {
+            socket.emit('error', {success: false, message: 'Device not found'});
+        }
+    });
+
+    socket.on('disconnect', () => {
+        console.log(`User disconnected: ${socket.id}`);
+    });
 })
 
 app.get('/', (req, res) => {
@@ -46,10 +62,11 @@ app.get('/', (req, res) => {
 
 app.post('/create-device', (req, res) => {
     const {name, type} = req.body;
+    const typeID = Number(type);
     if (!type || !name) {
         return res.status(400).send('Please specify a valid type and name.');
     }
-    createDevice(type, name);
+    createDevice(typeID, name);
     const device = devices[devices.length - 1];
     res.json(device);
 });
@@ -80,6 +97,7 @@ app.post('/devices/:id/update-parameter', (req, res) => {
     res.json(device);
 
     io.emit('deviceParameterChanged', device);
+    io.to(`device-${deviceId}`).emit('deviceParameterChanged', device);
 });
 
 

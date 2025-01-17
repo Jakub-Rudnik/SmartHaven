@@ -6,6 +6,7 @@ namespace Services;
 
 use Exception;
 use Lib\DatabaseConnection;
+
 // Opcjonalnie możesz mieć własną encję Group:
 use Entity\Group;
 
@@ -25,21 +26,21 @@ class GroupService
      * @param string $groupName
      * @return int Zwraca ID nowo utworzonej grupy (lub 0 w razie błędu).
      */
-    public function createGroup(int $userId, string $groupName): int
+    public function createGroup(int $userId, string $groupName): array
     {
         $sql = "INSERT INTO `Groups` (UserID, GroupName) VALUES (:userId, :groupName)";
         $params = [
-            ':userId'    => $userId,
+            ':userId' => $userId,
             ':groupName' => $groupName
         ];
 
         try {
-            $this->db->execute($sql, $params);
-            return (int) $this->db->getLastInsertId();
+            $result = $this->db->execute($sql, $params);
         } catch (Exception $e) {
-            echo "Error creating group: " . $e->getMessage();
-            return 0;
+            return ['success' => false, 'message' => $e->getMessage()];
         }
+
+        return ['success' => true, 'data' => $result];
     }
 
     /**
@@ -142,7 +143,7 @@ class GroupService
      * @param string $newName
      * @return bool
      */
-    public function updateGroup(int $groupId, string $newName): bool
+    public function updateGroup(int $groupId, string $newName): array
     {
         $sql = "
             UPDATE `Groups`
@@ -151,44 +152,39 @@ class GroupService
         ";
         $params = [
             ':groupName' => $newName,
-            ':groupId'   => $groupId
+            ':groupId' => $groupId
         ];
 
         try {
-            $this->db->execute($sql, $params);
-            return true;
+            $result = $this->db->execute($sql, $params);
         } catch (Exception $e) {
-            echo "Error updating group: " . $e->getMessage();
-            return false;
+            return ['success' => false, 'message' => $e->getMessage()];
         }
+
+        return ['success' => true, 'data' => $result];
     }
 
     /**
-     * Usuwa grupę z bazy danych.  
+     * Usuwa grupę z bazy danych.
      * Pamiętaj, że w tabeli Device mamy klauzulę ON DELETE SET NULL w relacji do Groups,
      * więc po usunięciu grupy wszystkie urządzenia z tej grupy dostaną GroupID = NULL.
      *
      * @param int $groupId
      * @return bool
      */
-    public function deleteGroup(int $groupId): bool
+    public function deleteGroup(int $groupId): array
     {
         $sql = "DELETE FROM `Groups` WHERE GroupID = :groupId";
         $params = [':groupId' => $groupId];
 
         try {
-            $this->db->execute($sql, $params);
-            return true;
+            $result = $this->db->execute($sql, $params);
         } catch (Exception $e) {
-            echo "Error deleting group: " . $e->getMessage();
-            return false;
+            return ['success' => false, 'message' => $e->getMessage()];
         }
+
+        return ['success' => true, 'data' => $result];
     }
-
-    
-
-
-
 
 
 }

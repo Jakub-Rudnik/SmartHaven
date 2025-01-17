@@ -8,6 +8,7 @@ use Entity\Device;
 use Entity\DeviceType;
 use Exception;
 use Lib\DatabaseConnection;
+use PDO;
 
 class DeviceService
 {
@@ -27,30 +28,30 @@ class DeviceService
     /**
      * Tworzy nowe urządzenie w bazie danych i zwraca ID nowego rekordu.
      */
-    public function createDevice(string $deviceName, int $deviceTypeId, ?int $groupId = null): int
+    public function createDevice(string $deviceName, int $deviceTypeId, string $deviceUrl, int $groupId): array
     {
         $result = '';
 
         $sql = "
-            INSERT INTO Device (DeviceName, DeviceTypeID, GroupID)
-            VALUES (:deviceName, :deviceTypeId, :groupId)
+            INSERT INTO Device (DeviceName, DeviceTypeID, GroupID, DeviceURL)
+            VALUES (:deviceName, :deviceTypeId, :groupId, :deviceUrl)
         ";
 
         $params = [
             ':deviceName' => $deviceName,
             ':deviceTypeId' => $deviceTypeId,
-            ':groupId' => $groupId,
+            ':groupId' => $groupId === 0 ? null : $groupId,
+            ':deviceUrl' => $deviceUrl
         ];
 
         try {
-            $result = $this->db->query($sql, $params);
+            $result = $this->db->execute($sql, $params);
         } catch (Exception $e) {
-            echo 'Error creating device: ' . $e->getMessage();
-            return 0;
+            return ['success' => false, 'message' => $e->getMessage()];
         }
 
-        var_dump($result);
-        return (int)$result;
+        return ['success' => true, 'data' => $result];
+
     }
 
     /**
@@ -63,9 +64,9 @@ class DeviceService
                 d.DeviceID,
                 d.DeviceName,
                 d.DeviceTypeID,
-                COALESCE(g.GroupName, 'Brak grupy') AS GroupName
+                d.DeviceUrl,
+                d.GroupID                
             FROM Device d
-            LEFT JOIN `Groups` g ON d.GroupID = g.GroupID
             WHERE d.DeviceID = :id
         ";
         $params = [':id' => $id];
@@ -78,15 +79,14 @@ class DeviceService
             $deviceData = $rows[0];
 
             $deviceType = $this->deviceTypeService->getDeviceTypeById((int)$deviceData['DeviceTypeID']);
-            $status = $this->getDeviceStatus((int)$deviceData['DeviceID']);
 
             return new Device(
                 (int)$deviceData['DeviceID'],
                 $deviceData['DeviceName'],
                 $deviceType,
                 '',  // opis
-                $status,
-                $deviceData['GroupName']
+                $deviceData['GroupID'],
+                $deviceData['DeviceUrl']
             );
         } catch (Exception $e) {
             echo $e->getMessage();
@@ -98,49 +98,49 @@ class DeviceService
      * Aktualizuje istniejące urządzenie w bazie danych.
      * Zwraca true, jeśli aktualizacja się powiodła, w przeciwnym razie false.
      */
-    public function updateDevice(int $deviceId, string $deviceName, int $deviceTypeId, ?int $groupId): bool
+    public function updateDevice(int $deviceId, string $deviceName, string $deviceUrl, int $groupId): array
     {
         $sql = "
             UPDATE Device
             SET 
                 DeviceName = :deviceName,
-                DeviceTypeID = :deviceTypeId,
-                GroupID = :groupId
+                GroupID = :groupId,
+                DeviceUrl = :deviceUrl
             WHERE DeviceID = :deviceId
         ";
 
         $params = [
             ':deviceName' => $deviceName,
-            ':deviceTypeId' => $deviceTypeId,
-            ':groupId' => $groupId,
-            ':deviceId' => $deviceId
+            ':deviceUrl' => $deviceUrl,
+            ':groupId' => $groupId === 0 ? null : $groupId,
+            ':deviceId' => $deviceId,
         ];
 
         try {
-            $this->db->execute($sql, $params);
-            return true;
+            $result = $this->db->execute($sql, $params);
         } catch (Exception $e) {
-            echo 'Error updating device: ' . $e->getMessage();
-            return false;
+            return ['success' => false, 'message' => $e->getMessage()];
         }
+
+        return ['success' => true, 'data' => $result];
     }
 
     /**
      * Usuwa urządzenie z bazy danych po ID.
      * Zwraca true, jeśli usunięto rekord, false w przypadku błędu.
      */
-    public function deleteDevice(int $deviceId): bool
+    public function deleteDevice(int $deviceId): array
     {
         $sql = "DELETE FROM Device WHERE DeviceID = :deviceId";
         $params = [':deviceId' => $deviceId];
 
         try {
-            $this->db->execute($sql, $params);
-            return true;
+            $result = $this->db->execute($sql, $params);
         } catch (Exception $e) {
-            echo 'Error deleting device: ' . $e->getMessage();
-            return false;
+            return ['success' => false, 'message' => $e->getMessage()];
         }
+
+        return ['success' => true, 'data' => $result];
     }
 
     // ----------------------------------------------------------------------
@@ -157,7 +157,8 @@ class DeviceService
                 d.DeviceID,
                 d.DeviceName,
                 d.DeviceTypeID,
-                COALESCE(g.GroupName, 'Brak grupy') AS GroupName
+                d.DeviceUrl,
+                d.GroupID
             FROM Device d
             LEFT JOIN `Groups` g ON d.GroupID = g.GroupID
             JOIN UserDevice ud ON d.DeviceID = ud.DeviceID
@@ -171,15 +172,14 @@ class DeviceService
         $devices = [];
         foreach ($result as $row) {
             $deviceType = $this->deviceTypeService->getDeviceTypeById((int)$row['DeviceTypeID']);
-            $status = $this->getDeviceStatus((int)$row['DeviceID']);
 
             $devices[] = new Device(
                 (int)$row['DeviceID'],
                 $row['DeviceName'],
                 $deviceType,
                 '',
-                $status,
-                $row['GroupName']
+                $row['GroupID'],
+                $row['DeviceUrl']
             );
         }
         return $devices;
@@ -195,7 +195,8 @@ class DeviceService
                 d.DeviceID,
                 d.DeviceName,
                 d.DeviceTypeID,
-                COALESCE(g.GroupName, 'Brak grupy') AS GroupName
+                d.DeviceUrl,
+                d.GroupID
             FROM Device d
             JOIN UserDevice ud ON d.DeviceID = ud.DeviceID
             LEFT JOIN `Groups` g ON d.GroupID = g.GroupID
@@ -218,7 +219,8 @@ class DeviceService
                 d.DeviceID,
                 d.DeviceName,
                 d.DeviceTypeID,
-                COALESCE(g.GroupName, 'Brak grupy') AS GroupName
+                d.DeviceUrl,
+                d.GroupID
             FROM Device d
             JOIN UserDevice ud ON d.DeviceID = ud.DeviceID
             LEFT JOIN `Groups` g ON d.GroupID = g.GroupID
@@ -235,50 +237,6 @@ class DeviceService
     }
 
     /**
-     * Zwraca wszystkie urządzenia pogrupowane wg nazwy grupy (dawniej 'Location').
-     * Dla każdego urządzenia dołączamy status (ParameterID = 1).
-     */
-    public function getDevicesGroupedByLocations(): array
-    {
-        $sql = "
-            SELECT 
-                d.DeviceID,
-                d.DeviceName,
-                d.DeviceTypeID,
-                COALESCE(g.GroupName, 'Brak grupy') AS GroupName,
-                dp.Value AS Status
-            FROM Device d
-            LEFT JOIN `Groups` g ON d.GroupID = g.GroupID
-            JOIN DeviceParameter dp ON d.DeviceID = dp.DeviceID
-            WHERE dp.ParameterID = 1
-            ORDER BY g.GroupName
-        ";
-
-        try {
-            $rows = $this->db->query($sql, []);
-        } catch (Exception $e) {
-            echo $e->getMessage();
-            return [];
-        }
-
-        $deviceList = [];
-        foreach ($rows as $row) {
-            $deviceType = $this->deviceTypeService->getDeviceTypeById((int)$row['DeviceTypeID']);
-            $status = ($row['Status'] === '1');
-
-            $deviceList[] = new Device(
-                (int)$row['DeviceID'],
-                $row['DeviceName'],
-                $deviceType,
-                '',
-                $status,
-                $row['GroupName']
-            );
-        }
-        return $deviceList;
-    }
-
-    /**
      * Zwraca listę urządzeń na podstawie typu (DeviceType).
      */
     public function getDevicesByType(DeviceType $type): array
@@ -288,7 +246,8 @@ class DeviceService
                 d.DeviceID,
                 d.DeviceName,
                 d.DeviceTypeID,
-                COALESCE(g.GroupName, 'Brak grupy') AS GroupName
+                d.DeviceUrl,
+                d.GroupID
             FROM Device d
             LEFT JOIN `Groups` g ON d.GroupID = g.GroupID
             WHERE d.DeviceTypeID = :typeId
@@ -298,52 +257,6 @@ class DeviceService
 
         return $this->queryToArray($sql, $params);
     }
-
-    /**
-     * Zwraca listę urządzeń wg nazwy grupy (wcześniej 'lokalizacji').
-     * Zostawione dla kompatybilności, ale semantycznie pobiera po GroupName.
-     */
-    public function getDevicesByLocation(string $location): array
-    {
-        $sql = "
-            SELECT 
-                d.DeviceID,
-                d.DeviceName,
-                d.DeviceTypeID,
-                COALESCE(g.GroupName, 'Brak grupy') AS GroupName
-            FROM Device d
-            LEFT JOIN `Groups` g ON d.GroupID = g.GroupID
-            WHERE g.GroupName = :groupName
-        ";
-        $params = [':groupName' => $location];
-
-        return $this->queryToArray($sql, $params);
-    }
-
-
-    public function getDeviceParameters(int $deviceId): array
-    {
-        $sql = "
-            SELECT 
-                p.Name,
-                dp.Value
-            FROM DeviceParameter dp
-            INNER JOIN Parameter p ON dp.ParameterID = p.ParameterID
-            WHERE dp.DeviceID = :deviceId
-        ";
-        $params = [':deviceId' => $deviceId];
-
-        try {
-            return $this->db->query($sql, $params);
-        } catch (Exception $e) {
-            echo $e->getMessage();
-            return [];
-        }
-    }
-
-    // ----------------------------------------------------------------------
-    //  Metody pomocnicze
-    // ----------------------------------------------------------------------
 
     /**
      * Metoda pomocnicza – wykonuje zapytanie i zwraca tablicę obiektów Device.
@@ -360,45 +273,18 @@ class DeviceService
         $deviceList = [];
         foreach ($devicesData as $deviceData) {
             $deviceType = $this->deviceTypeService->getDeviceTypeById((int)$deviceData['DeviceTypeID']);
-            $status = $this->getDeviceStatus((int)$deviceData['DeviceID']);
 
             $deviceList[] = new Device(
                 (int)$deviceData['DeviceID'],
                 $deviceData['DeviceName'],
                 $deviceType,
                 '', // opis
-                $status,
+                $deviceData['GroupID'],
                 $deviceData['GroupName'] ?? 'Brak grupy'
             );
         }
 
         return $deviceList;
-    }
-
-    /**
-     * Prywatna metoda pomocnicza do pobierania statusu urządzenia
-     * z tabeli DeviceParameter (ParameterID = 1 -> Status).
-     */
-    private function getDeviceStatus(int $deviceId): bool
-    {
-        $query = "
-            SELECT Value 
-            FROM DeviceParameter 
-            WHERE DeviceID = :deviceId 
-              AND ParameterID = 1
-        ";
-        $params = [':deviceId' => $deviceId];
-
-        try {
-            $result = $this->db->query($query, $params);
-            if (count($result) > 0) {
-                return $result[0]['Value'] === '1';
-            }
-            return false;
-        } catch (Exception $e) {
-            echo $e->getMessage();
-            return false;
-        }
     }
 
     /**

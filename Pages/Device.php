@@ -4,17 +4,21 @@ namespace Pages;
 
 use Lib\DatabaseConnection;
 use Services\DeviceService;
+use Services\DeviceTypeService;
+use UI\Devices\AC;
 use UI\Header;
 use UI\Navbar;
 
 $db = new DatabaseConnection();
 $deviceService = new DeviceService($db);
+$deviceTypeService = new DeviceTypeService($db);
 
 $currentPath = $_SERVER['REQUEST_URI'];
 
 $deviceId = (int)explode('/', $_SERVER['REQUEST_URI'])[3];
 $device = $deviceService->getDeviceById($deviceId);
-$deviceParameters = $deviceService->getDeviceParameters($deviceId);
+
+$deviceType = $device->getType();
 ?>
 
 <!DOCTYPE html>
@@ -38,26 +42,20 @@ echo $navbar->render();
 
 <main class="card bg-dark-subtle flex-grow-1 p-4 overflow-y-auto" style="max-height: 100vh">
     <?php
-    $header = new Header('Urządzenie: ' . $device->getName());
+    $header = new Header('Urządzenie');
     echo $header->render();
     ?>
+    <?php
+    switch ($deviceType->getName()) {
+        case 'AC':
+            $ac = new AC($device);
+            echo $ac->render();
+            break;
+    }
 
-    <h3 class="pt-5">Parametry</h3>
 
-    <div class='d-grid gap-4 devices py-2'>
-        <?php foreach ($deviceParameters as $parameter): ?>
-            <div class='rounded-4 p-4 device-card d-flex gap-2 justify-content-between align-items-center text-decoration-none text-white'>
-                <div class='d-flex flex-column justify-content-center'>
-                    <h5 class='mb-0 text-truncate' title='<?= htmlspecialchars($parameter['Name']) ?>'>
-                        <?= htmlspecialchars($parameter['Name']) ?>
-                    </h5>
-                    <p class='m-0 text-secondary'>
-                        <em><?= htmlspecialchars($parameter['Value']) ?></em>
-                    </p>
-                </div>
-            </div>
-        <?php endforeach ?>
-    </div>
+    ?>
 </main>
+
 </body>
 </html>
