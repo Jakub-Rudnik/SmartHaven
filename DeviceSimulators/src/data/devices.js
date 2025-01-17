@@ -10,10 +10,6 @@ class AC {
         {
             name: 'temperature',
             value: 22
-        },
-        {
-            name: 'mode',
-            value: 'COOL'
         }
     ]
 }
