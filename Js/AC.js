@@ -132,6 +132,7 @@ export default class AC {
             console.log(device);
             if (device.id === this.simulationId) {
                 this.setParameters(device.data);
+                showToastMessage('Zaktualizowano parametry urządzenia', true);
             }
         });
     }

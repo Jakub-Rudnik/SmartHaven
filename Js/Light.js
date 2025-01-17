@@ -117,6 +117,7 @@ export default class Light {
             console.log(device);
             if (device.id === this.simulationId) {
                 this.setParameters(device.data);
+                showToastMessage('Zaktualizowano parametry urządzenia', true);
             }
         });
     }
