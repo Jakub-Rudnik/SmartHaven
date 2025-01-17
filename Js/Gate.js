@@ -15,10 +15,10 @@ export default class Gate {
     }
 
     async init() {
+        this.render();
         const response = await fetch(this.url);
         const data = await response.json();
         if (response.ok) {
-            this.render();
             this.setParameters(data.data);
             this.setupSocketListeners();
         }
