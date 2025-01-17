@@ -78,6 +78,11 @@ app.get('/devices', (req, res) => {
 app.get('/devices/:id', (req, res) => {
     const deviceId = Number(req.params.id);
     const device = devices.find(device => device.id === deviceId);
+
+    if (device === undefined) {
+        return res.status(404).json({"error": 'Device not found'});
+    }
+
     res.json(device);
 });
 
