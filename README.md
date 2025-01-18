@@ -16,6 +16,7 @@ solidnym zabezpieczeniom. To idealne rozwiązanie dla osób, które chcą mieć 
 i bezpieczny.
 
 ## Jak uruchomić
+Do uruchomienia aplikacji potrzebny będzie node.js oraz Docker. Oba programy muszą byc zainstalowane na twoim komputerze.
 
 1. Sklonuj repozytorium
 2. ```bash
