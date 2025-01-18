@@ -21,6 +21,7 @@ i bezpieczny.
 2. ```bash
     > cd DeviceSimulators
     > npm install
+    > cd ..
     ```
 2. ```bash
     > docker-compose up
